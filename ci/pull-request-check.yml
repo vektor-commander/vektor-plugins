@@ -1,0 +1,26 @@
+# The pull-request check, as a GitHub Actions workflow. Copy it to .github/workflows/ of the registry repository the owner
+# creates. Not used or pushed by anything in the Vektor repository (feature 082: the registry repository and its keys are the
+# owner's manual steps).
+#
+# It builds the registry tool from the Vektor repository (the same PluginKit rules Vektor itself applies) and runs
+# `vektor-registry check` on the entries the pull request changed: valid manifest, reachable package, matching SHA-256,
+# permissions matching the manifest, no id collisions. The signing key is NOT a secret of this workflow: the index is signed by
+# the maintainer, by hand, after merging.
+name: Plugin registry check
+on:
+  pull_request:
+    paths: ["plugins/**", "revoked.json"]
+jobs:
+  check:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/checkout@v4
+        with: { repository: OWNER/vektor, path: vektor-tools }   # the owner sets the Vektor repository
+      - name: Build the tool
+        run: swift build --package-path vektor-tools/Packages/PluginTools -c release --product vektor-registry
+      - name: Check the changed entries
+        run: |
+          changed=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- plugins | sed -n 's#^plugins/\(.*\)\.json$#--plugin \1#p' | tr '\n' ' ')
+          vektor-tools/Packages/PluginTools/.build/release/vektor-registry check . $changed

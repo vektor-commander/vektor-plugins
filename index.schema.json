@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vektor.example/registry/index.schema.json",
+  "title": "Vektor plugin registry index",
+  "description": "index.json, as vektor-registry build writes it and Vektor reads it (design §6). Each file under plugins/ is one element of 'plugins'. New fields never bump schemaVersion; unknown fields are ignored. Vektor accepts the index only if index.json.sig (Ed25519, base64 of 64 bytes, over the exact bytes of index.json) verifies.",
+  "type": "object",
+  "required": ["plugins"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "generated": { "type": "string", "format": "date-time", "description": "When vektor-registry build made this file." },
+    "plugins": { "type": "array", "maxItems": 5000, "items": { "$ref": "#/$defs/plugin" } },
+    "revoked": { "type": "array", "items": { "$ref": "#/$defs/revocation" }, "description": "Versions that must not be installed and are turned off where installed." }
+  },
+  "$defs": {
+    "https": { "type": "string", "format": "uri", "pattern": "^https://", "description": "Always https. (Only the local test registry may use http://127.0.0.1.)" },
+    "semver": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([-+][0-9A-Za-z.-]+)?$" },
+    "permission": { "enum": ["processes", "network", "readSelection", "writeFiles", "openURLs", "secrets", "decorate", "events", "location"] },
+    "plugin": {
+      "type": "object",
+      "required": ["id", "name", "publisher", "versions"],
+      "properties": {
+        "id": { "type": "string", "maxLength": 100, "pattern": "^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$", "description": "Reverse domain, lowercase. The file is plugins/<id>.json." },
+        "name": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "publisher": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "summary": { "type": "string", "maxLength": 300, "description": "One or two lines, shown on the card." },
+        "description": { "type": "string", "maxLength": 4000, "description": "Shown when there is no readme." },
+        "categories": { "type": "array", "maxItems": 8, "items": { "type": "string", "maxLength": 40 }, "description": "Become the chips of Get Plugins." },
+        "icon": { "$ref": "#/$defs/https", "description": "A PNG or SVG, at most 512 KB." },
+        "readme": { "$ref": "#/$defs/https", "description": "Markdown, at most 256 KB." },
+        "homepage": { "$ref": "#/$defs/https" },
+        "repository": { "$ref": "#/$defs/https" },
+        "license": { "type": "string", "maxLength": 60 },
+        "permissions": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/permission" }, "description": "Exactly the manifest's permissions; the pull-request check compares them." },
+        "screenshots": { "type": "array", "maxItems": 12, "items": { "$ref": "#/$defs/https" } },
+        "images": { "type": "array", "maxItems": 50, "items": { "$ref": "#/$defs/https" }, "description": "The only remote images the readme may show. An image the readme uses that is not listed here is not loaded." },
+        "versions": { "type": "array", "minItems": 1, "maxItems": 200, "items": { "$ref": "#/$defs/version" } }
+      }
+    },
+    "version": {
+      "type": "object",
+      "required": ["version", "api", "minVektor", "url", "sha256"],
+      "properties": {
+        "version": { "$ref": "#/$defs/semver" },
+        "api": { "type": "integer", "minimum": 0, "maximum": 9999, "description": "The plugin API the plugin was written for." },
+        "minVektor": { "$ref": "#/$defs/semver", "description": "The oldest Vektor that runs it." },
+        "url": { "$ref": "#/$defs/https", "description": "The package: a zip of the plugin folder, hosted by the author (a release asset)." },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$", "description": "Of the package, lowercase hex. Vektor installs the package only if it matches." },
+        "size": { "type": "integer", "minimum": 1 },
+        "published": { "type": "string", "format": "date-time" },
+        "changelog": { "type": "string", "maxLength": 4000 }
+      }
+    },
+    "revocation": {
+      "type": "object",
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "type": "string" },
+        "version": { "$ref": "#/$defs/semver" },
+        "reason": { "type": "string", "maxLength": 300, "description": "Plain words; shown to the user." }
+      }
+    }
+  }
+}

@@ -1,0 +1,3 @@
+index.json -text
+index.json.sig -text
+*.zip binary

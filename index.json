@@ -1,0 +1,47 @@
+{
+  "generated" : "2026-10-05T15:48:23Z",
+  "plugins" : [
+    {
+      "categories" : [
+        "Sharing",
+        "Developer"
+      ],
+      "description" : "Serves a file or folder from a small local web server, or takes a port you already run, and exposes it with the Cloudflare Tunnel connector (cloudflared) you installed. Tunnels keep running while Vektor runs and always stop when Vektor quits or the plugin is turned off.",
+      "homepage" : "https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/",
+      "icon" : "https://raw.githubusercontent.com/vektor-commander/vektor-plugins/main/packages/com.vektor-commander.cloudflare-tunnel/icon.svg",
+      "id" : "com.vektor-commander.cloudflare-tunnel",
+      "images" : [
+
+      ],
+      "license" : "MIT",
+      "name" : "Cloudflare Tunnel",
+      "permissions" : [
+        "processes",
+        "openURLs",
+        "secrets"
+      ],
+      "publisher" : "Vektor",
+      "readme" : "https://raw.githubusercontent.com/vektor-commander/vektor-plugins/main/packages/com.vektor-commander.cloudflare-tunnel/README.md",
+      "repository" : "https://github.com/vektor-commander/vektor-plugins",
+      "screenshots" : [
+
+      ],
+      "summary" : "Publish a file, a folder or a local port under a public Cloudflare address.",
+      "versions" : [
+        {
+          "api" : 1,
+          "changelog" : "First version.",
+          "minVektor" : "0.1.0",
+          "published" : "2026-10-05T16:00:00Z",
+          "sha256" : "009bae8587cc33868ccc3f49304df0127b6da0a283f96a6c662828034eb0e20f",
+          "url" : "https://raw.githubusercontent.com/vektor-commander/vektor-plugins/main/packages/com.vektor-commander.cloudflare-tunnel/1.0.0.zip",
+          "version" : "1.0.0"
+        }
+      ]
+    }
+  ],
+  "revoked" : [
+
+  ],
+  "schemaVersion" : 1
+}
