@@ -1,26 +1,61 @@
-# The pull-request check, as a GitHub Actions workflow. Copy it to .github/workflows/ of the registry repository the owner
-# creates. Not used or pushed by anything in the Vektor repository (feature 082: the registry repository and its keys are the
-# owner's manual steps).
+# The pull-request check of the plugin registry, as a GitHub Actions workflow.
 #
-# It builds the registry tool from the Vektor repository (the same PluginKit rules Vektor itself applies) and runs
-# `vektor-registry check` on the entries the pull request changed: valid manifest, reachable package, matching SHA-256,
-# permissions matching the manifest, no id collisions. The signing key is NOT a secret of this workflow: the index is signed by
-# the maintainer, by hand, after merging.
+# The owner copies this file to .github/workflows/pull-request-check.yml of vektor-plugins, and the scripts next to it
+# (changed-entries.sh, fetch-tool.sh, pr-check.sh) to ci/ there. CONTRIBUTING.md lists the steps. It is not active
+# until the owner has published the tools release and written its SHA-256 below.
+#
+# What it does: for the registry entries a pull request adds or changes (all of them when revoked.json changes) it runs
+# `vektor-registry check`: manifest valid under Vektor's own rules, package reachable, SHA-256 matching, permissions equal to
+# the manifest's, no id collision. A removed entry fails as "removal, needs the owner". The report is the job output and the
+# job summary.
+#
+# Security, on purpose:
+#   * `pull_request`, never `pull_request_target`: a fork's pull request runs with a read-only token and no secrets.
+#   * `contents: read` and no secret of any kind. Signing is manual, on the owner's Mac, after merging; its key is never here.
+#   * The tool is a prebuilt binary attached to a release of this repository (built by the project owner, who
+#     publishes it). It is downloaded from the fixed address below and its SHA-256 is compared with the value below
+#     BEFORE anything of it runs; a replaced asset is refused, and changing the value takes a reviewed commit.
+#   * The scripts that do the checking come from the BASE commit (second checkout, into trusted/), not from the pull request,
+#     so a pull request cannot change how it is checked. The pull request is checked out into pr/, a sibling folder, so it
+#     cannot plant anything at trusted/. (The workflow file itself is read from the pull request by GitHub: a change to it must
+#     be reviewed by eye. A pull request that also touches plugins/ or revoked.json fails when it touches ci/ or .github/;
+#     one that touches only those does not trigger this workflow at all.)
+#   * No `${{ }}` expression is interpolated into a `run:` line (script injection): values reach the script as env variables.
+#   * Third-party actions are pinned by commit SHA; checkouts keep no credentials. Nothing from the pull request is executed:
+#     its files are read as data by git and by the verified tool. No cache, no artifacts.
+#
+# To publish a new tool version, change exactly the next two lines (the owner's release script prints both).
 name: Plugin registry check
 on:
   pull_request:
     paths: ["plugins/**", "revoked.json"]
+permissions:
+  contents: read
+env:
+  TOOL_URL: https://github.com/vektor-commander/vektor-plugins/releases/download/tools-1.0.0/vektor-plugin-tools-macos.zip
+  TOOL_SHA256: REPLACE_WITH_THE_SHA256_PRINTED_BY_registry-tool-release.sh
+concurrency:
+  group: plugin-registry-check-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 jobs:
   check:
     runs-on: macos-15
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - uses: actions/checkout@v4
-        with: { repository: OWNER/vektor, path: vektor-tools }   # the owner sets the Vektor repository
-      - name: Build the tool
-        run: swift build --package-path vektor-tools/Packages/PluginTools -c release --product vektor-registry
+      - name: Check out the pull request
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          path: pr
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check out the check's scripts from the base commit
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: trusted
+          sparse-checkout: ci
+          persist-credentials: false
       - name: Check the changed entries
-        run: |
-          changed=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- plugins | sed -n 's#^plugins/\(.*\)\.json$#--plugin \1#p' | tr '\n' ' ')
-          vektor-tools/Packages/PluginTools/.build/release/vektor-registry check . $changed
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: bash "$GITHUB_WORKSPACE/trusted/ci/pr-check.sh" --registry "$GITHUB_WORKSPACE/pr" --base "$BASE_SHA" --head HEAD --tool "$TOOL_URL" --sha "$TOOL_SHA256"
