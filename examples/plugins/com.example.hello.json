@@ -1,0 +1,27 @@
+{
+  "id": "com.example.hello",
+  "name": "Hello Plugin",
+  "publisher": "Your Name",
+  "summary": "Says how many items you chose.",
+  "description": "A template plugin.",
+  "categories": ["Developer"],
+  "icon": "https://example.com/hello/icon.png",
+  "readme": "https://example.com/hello/README.md",
+  "homepage": "https://example.com/hello",
+  "repository": "https://example.com/hello/source",
+  "license": "MIT",
+  "permissions": ["readSelection"],
+  "screenshots": ["https://example.com/hello/shot-1.png"],
+  "images": ["https://example.com/hello/shot-1.png"],
+  "versions": [
+    {
+      "version": "0.1.0",
+      "api": 1,
+      "minVektor": "0.1.0",
+      "url": "https://example.com/hello/releases/hello-0.1.0.zip",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "published": "2026-10-02T12:00:00Z",
+      "changelog": "First version."
+    }
+  ]
+}

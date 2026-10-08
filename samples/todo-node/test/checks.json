@@ -1,0 +1,63 @@
+{
+  "settings": { "perWorkspace": false },
+  "steps": [
+    { "name": "startup: answers, then describes the list and the summary",
+      "startup": true,
+      "expect": [
+        { "kind": "response" },
+        { "kind": "notification", "method": "view/update", "match": { "params.view": "todos", "params.description.empty.title": "Nothing to do" } },
+        { "kind": "notification", "method": "view/update", "match": { "params.view": "summary", "params.description.detail.rows.2.value": "0" } }
+      ] },
+
+    { "name": "opening the view describes it again",
+      "send": { "method": "view/opened", "params": { "view": "todos" } },
+      "expect": [ { "method": "view/update", "match": { "params.view": "todos", "params.description.list.input.action": "add" } } ] },
+
+    { "name": "add: a todo appears in the open group",
+      "send": { "method": "view/event", "params": { "view": "todos", "action": "add", "value": "Buy milk" } },
+      "expect": [ { "method": "view/update",
+                    "match": { "params.view": "todos", "params.description.list.groups.0.rows.0.title": "Buy milk" },
+                    "capture": { "milk": "params.description.list.groups.0.rows.0.id" } } ] },
+
+    { "name": "add: a second todo comes after the first",
+      "send": { "method": "view/event", "params": { "view": "todos", "action": "add", "value": "Call Anna" } },
+      "expect": [ { "method": "view/update",
+                    "match": { "params.view": "todos", "params.description.list.groups.0.rows.1.title": "Call Anna" } } ] },
+
+    { "name": "a blank todo is ignored",
+      "send": { "method": "view/event", "params": { "view": "todos", "action": "add", "value": "   " } },
+      "expect": [ { "method": "view/update", "absent": true, "match": { "params.view": "todos" } } ] },
+
+    { "name": "toggle: a checked todo moves to the Completed group",
+      "send": { "method": "view/event", "params": { "view": "todos", "action": "toggle", "card": "${milk}", "value": true } },
+      "expect": [ { "method": "view/update",
+                    "match": { "params.view": "todos", "params.description.list.groups.1.id": "done",
+                               "params.description.list.groups.1.rows.0.title": "Buy milk" } },
+                  { "method": "view/update",
+                    "match": { "params.view": "summary", "params.description.detail.rows.0.value": "1",
+                               "params.description.detail.rows.1.value": "1", "params.description.detail.rows.2.value": "2" } } ] },
+
+    { "name": "edit: the text changes in place",
+      "send": { "method": "view/event", "params": { "view": "todos", "action": "edit", "card": "${milk}", "value": "Buy oat milk" } },
+      "expect": [ { "method": "view/update", "match": { "params.view": "todos", "params.description.list.groups.1.rows.0.title": "Buy oat milk" } } ] },
+
+    { "name": "Clear Completed removes the completed group",
+      "send": { "method": "view/event", "params": { "view": "summary", "action": "clear" } },
+      "expect": [ { "method": "view/update",
+                    "match": { "params.view": "todos", "params.description.list.groups": { "count": 1 },
+                               "params.description.list.groups.0.rows": { "count": 1 } } } ] },
+
+    { "name": "a changed setting is applied: alphabetical order turns reordering off",
+      "send": { "method": "settingsChanged", "params": { "settings": { "sort": "alphabetical", "showCompleted": true, "perWorkspace": false }, "workspace": null } },
+      "expect": [ { "method": "view/update", "match": { "params.view": "todos", "params.description.list.reorder": { "exists": false } } } ] },
+
+    { "name": "ping is answered",
+      "send": { "method": "ping" },
+      "expect": [ { "kind": "response" } ] },
+
+    { "name": "shutdown: answers and exits",
+      "send": { "method": "shutdown", "params": { "reason": "quit" } },
+      "expect": [ { "kind": "response" } ],
+      "expectExit": true }
+  ]
+}

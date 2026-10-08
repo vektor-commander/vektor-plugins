@@ -1,0 +1,53 @@
+{
+  "id": "dev.vektor.sample.folder-drive",
+  "name": "Folder Drive",
+  "version": "1.0.0",
+  "publisher": "Vektor",
+  "summary": "A folder under /tmp, browsed in a pane like a remote drive.",
+  "description": "A sample location plugin. Each connection is a folder under /tmp that this plugin serves to Vektor over the plugin protocol: listing (paged), reading, writing, new folders, rename, move and permanent delete. It never touches a network. Use it to see how a location behaves in a pane, or copy it as the start of your own (WebDAV, a cloud drive).",
+  "api": 1,
+  "minVektor": "0.1.0",
+  "executable": "run.zsh",
+  "permissions": ["location", "secrets"],
+  "license": "MIT",
+  "readme": "README.md",
+  "icon": "icon.svg",
+  "contributes": {
+    "locations": [
+      {
+        "id": "drive",
+        "title": "Folder Drive",
+        "scheme": "folder-drive",
+        "symbol": "externaldrive",
+        "summaryField": "root",
+        "fields": [
+          {"key": "root", "kind": "text", "label": "Folder", "required": true, "placeholder": "/tmp/my-drive",
+           "help": "A folder under /tmp. It must exist."},
+          {"key": "accessCode", "kind": "secret", "label": "Access code", "placeholder": "Optional",
+           "help": "Needed only when the folder holds a file named .access-code. Kept in your keychain."}
+        ],
+        "capabilities": {
+          "write": true, "rename": true, "move": true, "delete": true, "createFolder": true,
+          "trash": false, "convert": true, "diskSpace": true, "share": false, "hiddenFiles": "dotPrefix"
+        },
+        "timeoutSeconds": 20,
+        "pageSize": 200
+      },
+      {
+        "id": "readonly",
+        "title": "Folder Drive (read only)",
+        "scheme": "folder-drive-ro",
+        "symbol": "lock.rectangle",
+        "summaryField": "root",
+        "fields": [
+          {"key": "root", "kind": "text", "label": "Folder", "required": true, "placeholder": "/tmp/my-drive",
+           "help": "A folder under /tmp. Nothing in it can be changed through this connection."},
+          {"key": "accessCode", "kind": "secret", "label": "Access code", "placeholder": "Optional"}
+        ],
+        "capabilities": {"diskSpace": true, "hiddenFiles": "dotPrefix"},
+        "timeoutSeconds": 20,
+        "pageSize": 200
+      }
+    ]
+  }
+}
