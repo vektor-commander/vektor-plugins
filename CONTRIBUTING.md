@@ -23,7 +23,7 @@ The **tools release** of this repository (a release tagged `tools-<version>`; us
   over its real protocol, from a JSON script);
 * `vektor-registry` — `check` (what the pull-request check runs on your entry).
 
-Nothing to build and no Xcode:
+They are built for Apple silicon (arm64) and need macOS 14 or later. Nothing to build and no Xcode:
 
     curl -fLO https://github.com/vektor-commander/vektor-plugins/releases/download/tools-<version>/vektor-plugin-tools-macos.zip
     unzip vektor-plugin-tools-macos.zip -d ~/vektor-tools
@@ -84,8 +84,9 @@ Vektor gives a plugin a **fixed `PATH`**: `/usr/bin:/bin:/usr/sbin:/sbin:/opt/ho
 
 `validate` reports what Vektor would refuse (errors) and what a good plugin should have (warnings: icon, README, license). `test`
 plays the script in `test/checks.json` (see "The test host" in the reference) against your program: it sends `startup`, `invoke`,
-`view/event` and so on, and checks what comes back. Every template and sample here has a `test/checks.json` that passes. The test
-host does not simulate the Processes service, so test the logic around it and try the rest in Vektor.
+`view/event` and so on, and checks what comes back. Every template and sample here has a `test/checks.json` that passes (build the Swift
+template with `./build.sh` first; the Node ones need Node.js where the plugin `PATH` finds it). The test host does not simulate
+the Processes service, so test the logic around it and try the rest in Vektor.
 
 Then try it in the real thing: Vektor ▸ Settings ▸ Plugins ▸ turn **Developer mode** on ▸ **Load Plugin from Folder…**. Edits to
 `plugin.json` or the program reload the plugin at once; a broken manifest leaves it stopped with the reason in its **Log**. Vektor
@@ -94,7 +95,8 @@ asks you to approve its permissions before it first runs.
 ### Signing and the quarantine mark
 
 * **Scripts need nothing**: no signature, and the quarantine mark does not matter for a script or a data file. A plugin folder
-  you downloaded in a browser loads.
+  you downloaded in a browser loads. (Vektor looks at up to 2,000 files before each start: a bigger folder that carries the
+  mark anywhere is refused, as it might hide a compiled program. `xattr -dr` below fixes that too.)
 * **A compiled program** must carry a valid signature, or macOS kills it silently. The **ad-hoc** signature most compilers add
   (or `codesign -s - path/to/program`) is enough. **No Developer ID, no notarization.** Sign after your last change.
 * A compiled program that came through a browser carries the quarantine mark, and macOS raises an alert for every start; Vektor

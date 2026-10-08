@@ -384,7 +384,8 @@ quarantine mark (downloaded from the internet) raises a system alert for every s
 
 * **Scripts are fine**, with or without the quarantine mark: zsh and Node are not the marked files, and a script folder
   downloaded in a browser loads in Developer mode. Only a quarantined **compiled program** in the plugin folder is refused, and
-  then the whole folder is.
+  then the whole folder is. Vektor looks at up to 2,000 files before each start; a larger folder (a big `node_modules`) that
+  carries the mark anywhere is refused too, since a compiled program further down cannot be ruled out.
 * A compiled `executable` must be **signed**: `codesign -s - path/to/program`. **An ad-hoc signature is all that is needed** — no
   Developer ID, no notarization, no Apple account; most compilers already add it. Sign **after** the last change; any change
   invalidates it.
@@ -399,7 +400,7 @@ quarantine mark (downloaded from the internet) raises a system alert for every s
 
 The tools are compiled programs that reuse Vektor's own code, so they cannot disagree with Vektor. They come from the **tools
 release** of the plugins repository (`tools-<version>`, the asset `vektor-plugin-tools-macos.zip`): `vektor-plugin` (for authors)
-and `vektor-registry` (the registry check). Nothing to build, nothing to install but the two files:
+and `vektor-registry` (the registry check), built for Apple silicon (arm64). Nothing to build, nothing to install but the two files:
 
     curl -fLO https://github.com/vektor-commander/vektor-plugins/releases/download/tools-<version>/vektor-plugin-tools-macos.zip
     unzip vektor-plugin-tools-macos.zip -d ~/vektor-tools

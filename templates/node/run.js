@@ -93,7 +93,14 @@ function drain() {
     pending = pending.subarray(headerEnd + 4 + length);
     let message;
     try { message = JSON.parse(body); } catch { console.error('a message that is not JSON'); continue; }
-    onMessage(message);
+    try {
+      onMessage(message);
+    } catch (error) {
+      // A bug or a failed write must not end the plugin: log it (stderr reaches the plugin's Log in Vektor) and answer a
+      // request, so Vektor is not left waiting for a reply that never comes.
+      console.error((error && error.stack) || String(error));
+      if (message && message.method && message.id !== undefined) refuse(message.id, 'Something went wrong in the plugin; its log has the details.');
+    }
   }
 }
 

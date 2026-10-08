@@ -22,8 +22,8 @@ What it shows:
 `.access-code` file; the code must match its first line.
 
 Every request is appended to `audit.log` in the plugin's data folder (`$VEKTOR_PLUGIN_DATA`), method and path only, never a
-secret — the probe reads it to check what Vektor asked. It declares no change feed: panes list again when Vektor itself changes
+secret, so you can see what Vektor asked of the plugin. It declares no change feed: panes list again when Vektor itself changes
 a folder, or on Refresh.
 
-Try it in Vektor: Settings ▸ Plugins ▸ Add from Folder…, approve “Provide a location”, then Settings ▸ Connections ▸ Plugin
+Try it in Vektor: Settings ▸ Plugins ▸ turn on **Developer mode** ▸ **Load Plugin from Folder…**, approve “Provide a location”, then Settings ▸ Connections ▸ Plugin
 locations ▸ Add. Its scripted checks (`test/checks.json`) cover connecting, listing and refusing a path that leaves the connection; the rest is exercised through Vektor.
