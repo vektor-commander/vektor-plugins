@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://vektor.example/registry/index.schema.json",
   "title": "Vektor plugin registry index",
-  "description": "index.json, as vektor-registry build writes it and Vektor reads it (design §6). Each file under plugins/ is one element of 'plugins'. New fields never bump schemaVersion; unknown fields are ignored. Vektor accepts the index only if index.json.sig (Ed25519, base64 of 64 bytes, over the exact bytes of index.json) verifies.",
+  "description": "index.json, as vektor-registry build writes it and Vektor reads it. Each file under plugins/ is one element of 'plugins'. New fields never bump schemaVersion; unknown fields are ignored. Vektor accepts the index only if index.json.sig (Ed25519, base64 of 64 bytes, over the exact bytes of index.json) verifies.",
   "type": "object",
   "required": ["plugins"],
   "properties": {
