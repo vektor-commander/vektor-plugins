@@ -63,8 +63,9 @@ docs/reference.md       the plugin reference
 templates/              zsh, node, swift
 samples/                larger examples, each with test/checks.json
 examples/               an example registry entry
-ci/                     the pull-request check as a GitHub Actions workflow plus its scripts (not armed yet)
+ci/                     the pull-request check as a GitHub Actions workflow plus its scripts
 CONTRIBUTING.md         the author path
+MAINTAINING.md          the maintainer's steps
 ```
 
 ### The tools
@@ -74,15 +75,10 @@ CONTRIBUTING.md         the author path
 | `vektor-plugin validate <folder>` | the manifest and program check Vektor itself makes, plus advice |
 | `vektor-plugin test <folder> <script.json>` | a simulated Vektor drives your plugin through a JSON script |
 | `vektor-registry check <folder> [--plugin id]… [--all-versions]` | the pull-request check |
-| `vektor-registry build <folder>` | merges the entries and revocations into `index.json` (maintainer) |
+| `vektor-registry build <folder>` | merges the entries and revocations into `index.json` (maintainer; see `MAINTAINING.md`) |
 | `vektor-registry sign <folder> --key <file>` | writes `index.json.sig` (maintainer) |
 | `vektor-registry verify <folder> --public-key <key>` | checks the signature the way Vektor does (maintainer) |
 
-### Maintainer notes
+### Maintaining the registry
 
-After merging a pull request: `vektor-registry build .`, `vektor-registry check .`, `vektor-registry sign . --key ~/keys/vektor-registry.key`,
-`vektor-registry verify . --public-key <the key built into Vektor>`, then commit `index.json` and `index.json.sig` together.
-**Revoking** a version is a line in `revoked.json` (with a reason in plain words), then build and sign again.
-
-The pull-request workflow in `ci/` is not active yet: it needs the tools release published and its SHA-256 written into
-`ci/pull-request-check.yml` (`TOOL_SHA256` holds a placeholder that the scripts refuse). Details in `CONTRIBUTING.md`.
+Merging, signing, revoking and the pull-request check are described in [`MAINTAINING.md`](MAINTAINING.md).
