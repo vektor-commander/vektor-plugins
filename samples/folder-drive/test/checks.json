@@ -1,0 +1,36 @@
+{
+  "steps": [
+    { "name": "startup: answers",
+      "startup": true,
+      "expect": [ { "kind": "response" } ] },
+
+    { "name": "a folder outside /tmp is refused in words",
+      "send": { "method": "location/connect", "params": { "connection": { "id": "c1", "type": "folder", "values": { "root": "/etc" } } } },
+      "expect": [ { "kind": "failure", "match": { "error.message": { "contains": "not a folder under /tmp" } } } ] },
+
+    { "name": "a request before a connection is open is refused",
+      "send": { "method": "location/list", "params": { "connection": { "id": "c1" }, "remotePath": "/" } },
+      "expect": [ { "kind": "failure", "match": { "error.message": "This connection is not open." } } ] },
+
+    { "name": "connecting to /tmp works",
+      "send": { "method": "location/connect", "params": { "connection": { "id": "c2", "type": "folder", "values": { "root": "/tmp" } } } },
+      "expect": [ { "kind": "response" } ] },
+
+    { "name": "listing the connection's folder answers with an items list",
+      "send": { "method": "location/list", "params": { "connection": { "id": "c2" }, "remotePath": "/", "pageSize": 5 } },
+      "expect": [ { "kind": "response", "match": { "result.items": { "exists": true } } } ] },
+
+    { "name": "a path that climbs out of the connection is refused",
+      "send": { "method": "location/list", "params": { "connection": { "id": "c2" }, "remotePath": "/../etc" } },
+      "expect": [ { "kind": "failure", "match": { "error.message": "That place is outside the connection." } } ] },
+
+    { "name": "ping is answered",
+      "send": { "method": "ping" },
+      "expect": [ { "kind": "response" } ] },
+
+    { "name": "shutdown: answers and exits",
+      "send": { "method": "shutdown", "params": { "reason": "quit" } },
+      "expect": [ { "kind": "response" } ],
+      "expectExit": true }
+  ]
+}

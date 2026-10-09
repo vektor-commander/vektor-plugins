@@ -1,80 +1,88 @@
-# The Vektor plugin registry
+# Vektor plugins
 
-The registry is two files in a public repository — `index.json` and its signature `index.json.sig` — plus the plugin packages
-their authors host themselves. Vektor downloads the index only when you open **Settings ▸ Plugins ▸ Get Plugins**, refuses it
-unless the signature verifies with the key built into Vektor, and installs a package only if its SHA-256 equals the one in the
-signed index. The project website lists plugins by reading the same `index.json`.
+The public plugin registry for Vektor, and everything a developer needs to write a plugin for it. This README has two parts:
+[for people who use plugins](#for-people-who-use-plugins) and [for people who write them](#for-people-who-write-plugins).
 
-This folder is the **layout and tooling** of that repository. Creating the repository and the signing key are the project
-owner's steps; nothing here creates a repository, and no key is stored in it.
+## For people who use plugins
 
-## Layout
+Open **Vektor ▸ Settings ▸ Plugins ▸ Get Plugins**. That is the only time Vektor looks at this registry.
+
+* The registry is two files in this repository: `index.json` (the list of plugins) and `index.json.sig` (its signature). Vektor
+  refuses the list unless the signature verifies with the key built into Vektor, so nobody can change the list by editing a file
+  on GitHub or in transit.
+* A plugin is installed only if the SHA-256 of its package equals the one in the signed list. A package that was swapped is
+  refused.
+* **Nothing runs when you install.** A new plugin arrives turned off and shows you, in plain words, what it asks to do (run
+  programs, use the network, read the files you choose, …). It starts only after you approve that.
+* A plugin the maintainers revoke is turned off in your Vektor the next time you open Get Plugins or check for updates, with the
+  reason shown.
+* Plugins are small programs running on your Mac with the permissions you approved. Install the ones you trust, as with any
+  program. Plugins written by other people are reviewed before they are listed, not audited line by line.
+
+The project website lists the same plugins by reading `index.json`.
+
+## For people who write plugins
+
+You can write a plugin, test it and submit it without ever seeing Vektor's source code. Everything is here:
+
+| What | Where |
+|---|---|
+| The whole path, step by step | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
+| The protocol and manifest reference | [`docs/reference.md`](docs/reference.md) |
+| Templates: zsh, Node.js, Swift (compiled) | [`templates/`](templates) |
+| Complete samples (a list view, a tunnel, a location, Todo in Node) | [`samples/`](samples) |
+| An example registry entry | [`examples/plugins/`](examples/plugins) |
+| The entry schema | [`index.schema.json`](index.schema.json) |
+| The tools (`vektor-plugin`, `vektor-registry`) | the newest `tools-*` release of this repository |
+
+The short path:
+
+1. Download the tools from the Releases page, and copy a template: `cp -R templates/node ~/my-plugin` (or `zsh`, `swift`).
+2. Edit `plugin.json` and the program. Check with `vektor-plugin validate ~/my-plugin`, test with
+   `vektor-plugin test ~/my-plugin ~/my-plugin/test/checks.json`, and try it in Vektor with **Settings ▸ Plugins ▸ Developer mode ▸
+   Load Plugin from Folder…**.
+3. Zip it, host the zip at an https address, and add `plugins/<id>.json` (id, permissions equal to the manifest, the zip's URL and
+   its SHA-256).
+4. Run `vektor-registry check . --plugin <id>`, then open a pull request. The maintainer reviews it; after merging, the maintainer
+   signs the new index.
+
+Plugins never need an Apple Developer ID or notarization. Scripts need nothing at all; a compiled program needs only the ad-hoc
+signature most compilers add (`codesign -s -` otherwise). Node.js is not installed by macOS, so a Node plugin tells its users to
+install it. Python is not offered: it is not on every Mac. [`CONTRIBUTING.md`](CONTRIBUTING.md) explains each of these.
+
+## What is in this repository
 
 ```
-plugins/<id>.json      one file per plugin: what an author submits by pull request
-packages/<id>/          zips, icons and READMEs of first-party plugins, served from raw.githubusercontent.com
-revoked.json           versions that must not be installed: [{ "id", "version", "reason" }]
-index.json             generated: vektor-registry build        (maintainer, after merging)
-index.json.sig         generated: vektor-registry sign         (maintainer; the private key stays on their Mac)
-index.schema.json      the JSON Schema of an entry and of the index
-ci/pull-request-check.yml   the pull-request check as a GitHub Actions workflow (not active yet: it needs the tool published first)
+plugins/<id>.json       one file per plugin: what an author submits by pull request
+packages/<id>/          zips, icons and READMEs of first-party plugins (Cloudflare Tunnel), served from raw.githubusercontent.com
+revoked.json            versions that must not be installed: [{ "id", "version", "reason" }]
+index.json              generated: vektor-registry build        (maintainer, after merging)
+index.json.sig          generated: vektor-registry sign         (maintainer; the private key stays on their Mac)
+index.schema.json       the JSON Schema of an entry and of the index
+docs/reference.md       the plugin reference
+templates/              zsh, node, swift
+samples/                larger examples, each with test/checks.json
+examples/               an example registry entry
+ci/                     the pull-request check as a GitHub Actions workflow plus its scripts (not armed yet)
+CONTRIBUTING.md         the author path
 ```
 
-An entry has the fields of `index.schema.json`; see `plugins/com.vektor-commander.cloudflare-tunnel.json`. The important ones:
-`id`, `name`, `publisher`, `summary`, `categories`, `icon`, `readme`, `permissions`, `screenshots`, `images` and `versions`
-(`version`, `api`, `minVektor`, `url`, `sha256`, `changelog`).
-
-* **`permissions` must be exactly the permissions in the plugin's `plugin.json`.** The check compares them.
-* **`images`** lists the only remote images a README may show. An image the README uses that is not listed is not loaded.
-* **Every address is https.** The package `url` is a zip of the plugin folder, hosted by you (a release asset is fine).
-* **`sha256`** is the lowercase hex SHA-256 of that zip: `shasum -a 256 hello-0.1.0.zip`.
-
-## For plugin authors: submit a plugin
-
-1. Write the plugin with the author kit (`docs/plugins/`), check it with `vektor-plugin validate` and test it with
-   `vektor-plugin test`.
-2. Zip the plugin folder (`cd` into it, `zip -r ../hello-0.1.0.zip .`), publish the zip at an https address, compute its SHA-256.
-3. Open a pull request that adds `plugins/<id>.json` (or adds a version to your file).
-4. The automatic check must pass: valid manifest, reachable package, matching SHA-256, permissions matching the manifest, no id
-   collisions. Run it yourself first:
-
-       vektor-registry check . --plugin com.example.hello
-
-   A plugin that asks for a permission it does not need, or whose entry and manifest disagree, is not merged.
-
-## For the maintainer: publish
-
-After merging:
-
-    vektor-registry build .                            # plugins/*.json + revoked.json → index.json
-    vektor-registry check .                            # everything, once more
-    vektor-registry sign . --key ~/keys/vektor-registry.key
-    vektor-registry verify . --public-key <the key built into Vektor>
-
-`sign` refuses a key file that lies inside a Git repository or that other users can read. Commit `index.json` and
-`index.json.sig` together. **Revoking** a version is a line in `revoked.json` (with a reason in plain words), then build and
-sign again: Vektor turns the installed version off the next time its owner opens Get Plugins or checks for updates.
-
-The production public key is the one thing Vektor needs from the owner: it goes into `PluginRegistryKeys` in
-`Explorer/State/Plugins/Registry/PluginRegistryConfiguration.swift`, with the address of `index.json`. Until then release
-builds say that the registry is not configured, and fetch nothing.
-
-## The tools
-
-They are compiled Swift (`Packages/PluginTools`) because the system `openssl` has no Ed25519, and because the check must apply
-the very rules Vektor applies (manifest validation, the package reader, the signature check):
-
-    swift build --package-path Packages/PluginTools -c release
-    Packages/PluginTools/.build/release/vektor-registry <command>
-    Packages/PluginTools/.build/release/vektor-plugin <command>
+### The tools
 
 | Command | What it does |
 |---|---|
-| `vektor-registry build <folder>` | merges the entries and revocations into `index.json` |
+| `vektor-plugin validate <folder>` | the manifest and program check Vektor itself makes, plus advice |
+| `vektor-plugin test <folder> <script.json>` | a simulated Vektor drives your plugin through a JSON script |
 | `vektor-registry check <folder> [--plugin id]… [--all-versions]` | the pull-request check |
-| `vektor-registry sign <folder> --key <file>` | writes `index.json.sig` |
-| `vektor-registry verify <folder> --public-key <key>` | checks the signature the way Vektor does |
-| `vektor-registry test-keygen <folder>` | a **test** key pair, only into a temporary folder |
+| `vektor-registry build <folder>` | merges the entries and revocations into `index.json` (maintainer) |
+| `vektor-registry sign <folder> --key <file>` | writes `index.json.sig` (maintainer) |
+| `vektor-registry verify <folder> --public-key <key>` | checks the signature the way Vektor does (maintainer) |
 
-`--local-test` allows `http://127.0.0.1` (the local test registry of `scripts/probe-plugin-registry.sh`); never use it for the
-real registry.
+### Maintainer notes
+
+After merging a pull request: `vektor-registry build .`, `vektor-registry check .`, `vektor-registry sign . --key ~/keys/vektor-registry.key`,
+`vektor-registry verify . --public-key <the key built into Vektor>`, then commit `index.json` and `index.json.sig` together.
+**Revoking** a version is a line in `revoked.json` (with a reason in plain words), then build and sign again.
+
+The pull-request workflow in `ci/` is not active yet: it needs the tools release published and its SHA-256 written into
+`ci/pull-request-check.yml` (`TOOL_SHA256` holds a placeholder that the scripts refuse). Details in `CONTRIBUTING.md`.

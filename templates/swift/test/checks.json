@@ -1,0 +1,25 @@
+{
+  "settings": { "greeting": "Hi" },
+  "steps": [
+    { "name": "startup: answers and logs",
+      "startup": true,
+      "expect": [ { "kind": "response" },
+                  { "kind": "notification", "method": "log", "match": { "params.message": "Hello Plugin started." } } ] },
+    { "name": "Say Hello answers with the greeting from the settings",
+      "send": { "method": "invoke", "params": { "command": "hello", "target": { "menu": "fileItem", "items": [ { "path": "/tmp/a", "name": "a", "isFolder": false } ] } } },
+      "expect": [ { "kind": "response", "match": { "result.message": { "contains": "Hi!" } } } ] },
+    { "name": "a changed setting is used at once",
+      "send": { "method": "settingsChanged", "params": { "settings": { "greeting": "Hola" }, "workspace": null } },
+      "expect": [] },
+    { "name": "the new greeting is said",
+      "send": { "method": "invoke", "params": { "command": "hello", "target": { "menu": "fileItem", "items": [] } } },
+      "expect": [ { "kind": "response", "match": { "result.message": { "matches": "^Hola! You chose" } } } ] },
+    { "name": "an unknown command is refused with a reason",
+      "send": { "method": "invoke", "params": { "command": "nonsense", "target": {} } },
+      "expect": [ { "kind": "failure", "match": { "error.message": { "contains": "no command" } } } ] },
+    { "name": "shutdown: answers and exits",
+      "send": { "method": "shutdown", "params": { "reason": "quit" } },
+      "expect": [ { "kind": "response" } ],
+      "expectExit": true }
+  ]
+}

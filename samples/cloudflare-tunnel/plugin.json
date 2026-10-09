@@ -1,0 +1,58 @@
+{
+  "id": "dev.vektor.sample.cloudflare-tunnel",
+  "name": "Cloudflare Tunnel",
+  "version": "1.0.0",
+  "publisher": "Vektor",
+  "summary": "Publish a file, a folder or a local port under a public Cloudflare address.",
+  "description": "Serves a file or folder from a small local web server, or takes a port you already run, and exposes it with the Cloudflare Tunnel connector (cloudflared) you installed. Tunnels keep running while Vektor runs and always stop when Vektor quits or the plugin is turned off.",
+  "api": 1,
+  "minVektor": "0.1.0",
+  "executable": "run.zsh",
+  "permissions": ["processes", "openURLs", "secrets"],
+  "homepage": "https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/",
+  "license": "MIT",
+  "readme": "README.md",
+  "icon": "icon.svg",
+  "settings": {
+    "groups": [
+      {"id": "cloudflared", "title": "cloudflared", "description": "The Cloudflare Tunnel connector this plugin runs. It is yours: Vektor never installs it."},
+      {"id": "defaults", "title": "Default Settings", "description": "These settings are used when creating new tunnels."},
+      {"id": "advanced", "title": "Advanced", "collapsible": true, "collapsed": true}
+    ],
+    "items": [
+      {"key": "cloudflared", "kind": "path", "pathKind": "file", "label": "cloudflared location", "group": "cloudflared",
+       "help": "Leave empty to find cloudflared on your PATH and in the usual Homebrew folders.",
+       "banner": {"text": "Install Cloudflare’s cloudflared CLI from", "linkTitle": "cloudflare.com", "link": "https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/"}},
+      {"key": "prefix", "kind": "text", "label": "Tunnel name prefix", "group": "defaults", "default": "vektor-",
+       "help": "Names a tunnel published by port when you leave its name empty.", "pattern": "^[A-Za-z0-9._-]*$"},
+      {"key": "openAfter", "kind": "toggle", "label": "Open in browser after creating", "group": "defaults", "default": false},
+      {"key": "copyURL", "kind": "toggle", "label": "Copy public URL to clipboard", "group": "defaults", "default": true},
+      {"key": "extraArguments", "kind": "text", "label": "Additional arguments", "group": "advanced", "placeholder": "e.g. --loglevel info",
+       "help": "Passed to every cloudflared this plugin starts."},
+      {"key": "serverPort", "kind": "number", "label": "Local file server port", "group": "advanced", "min": 1024, "max": 65535, "integer": true, "default": 8787,
+       "help": "The first port tried for a published file or folder; the next free one is used when it is taken."},
+      {"key": "apiToken", "kind": "secret", "label": "Cloudflare API token", "group": "advanced", "placeholder": "Optional",
+       "help": "Kept in your keychain. Quick tunnels need none."}
+    ]
+  },
+  "contributes": {
+    "commands": [
+      {"id": "publish", "title": "Publish via Cloudflare Tunnel", "symbol": "icloud.and.arrow.up",
+       "applies": {"to": "both", "minCount": 1, "maxCount": 1, "locations": ["local"]}},
+      {"id": "publishPort", "title": "Publish Port…", "symbol": "network"}
+    ],
+    "menus": [
+      {"target": "fileItem", "items": ["publish"]},
+      {"target": "sidebarEntry", "items": ["publishPort"]}
+    ],
+    "views": [
+      {"id": "tunnels", "title": "Tunnels", "kind": "cardList"}
+    ],
+    "sidebar": [
+      {"id": "tunnels", "title": "Tunnels", "symbol": "point.3.connected.trianglepath.dotted", "view": "tunnels"}
+    ],
+    "settingsTabs": [
+      {"id": "tunnels", "title": "Tunnels", "symbol": "point.3.connected.trianglepath.dotted", "view": "tunnels"}
+    ]
+  }
+}

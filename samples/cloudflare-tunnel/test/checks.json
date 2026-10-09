@@ -1,0 +1,41 @@
+{
+  "settings": { "cloudflared": "${folder}/test/fake-cloudflared.zsh" },
+  "autoReply": { "dialog/show": { "result": "cancel" } },
+  "steps": [
+    { "name": "startup: answers, finds the (fake) cloudflared and reports it",
+      "startup": true,
+      "expect": [
+        { "kind": "response" },
+        { "kind": "notification", "method": "settings/status",
+          "match": { "params.key": "cloudflared", "params.text": "cloudflared found", "params.tone": "positive", "params.detail": { "contains": "2099" } } },
+        { "kind": "notification", "method": "view/update",
+          "match": { "params.view": "tunnels", "params.description.cards": { "count": 0 }, "params.description.empty.button.action": "new" } }
+      ] },
+
+    { "name": "Publish Port… opens its dialog, and cancelling it starts nothing",
+      "send": { "method": "invoke", "params": { "command": "publishPort", "target": {} } },
+      "expect": [
+        { "kind": "response" },
+        { "kind": "request", "method": "dialog/show",
+          "match": { "params.title": "Publish Port via Cloudflare Tunnel", "params.fields.0.key": "port", "params.primary": "Start Tunnel" } },
+        { "kind": "request", "method": "process/start", "absent": true }
+      ] },
+
+    { "name": "a setting that points nowhere is reported in words, with the reason",
+      "send": { "method": "settingsChanged", "params": { "settings": { "cloudflared": "/nonexistent/cloudflared" }, "workspace": null } },
+      "expect": [
+        { "kind": "notification", "method": "settings/status",
+          "match": { "params.key": "cloudflared", "params.text": "cloudflared not found", "params.tone": "warning",
+                     "params.detail": "nothing runnable at /nonexistent/cloudflared" } }
+      ] },
+
+    { "name": "a command it does not have is refused",
+      "send": { "method": "invoke", "params": { "command": "nonsense", "target": {} } },
+      "expect": [ { "kind": "failure" } ] },
+
+    { "name": "shutdown: answers and exits",
+      "send": { "method": "shutdown", "params": { "reason": "quit" } },
+      "expect": [ { "kind": "response" } ],
+      "expectExit": true }
+  ]
+}

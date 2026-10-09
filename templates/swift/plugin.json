@@ -1,0 +1,29 @@
+{
+  "id": "com.example.hello-swift",
+  "name": "Hello Plugin (Swift)",
+  "version": "0.1.0",
+  "publisher": "Your Name",
+  "summary": "A compiled Swift template: one command in the file menu that tells you how many items you chose.",
+  "description": "Copy this folder, change the id (reverse domain, lowercase), the name and the publisher, edit Sources/main.swift and run ./build.sh. The compiled program needs nothing installed on the user's Mac. Run `vektor-plugin validate .` to check it, `vektor-plugin test . test/checks.json` to test it, and load it in Vektor with Developer mode on (Settings ▸ Plugins ▸ Load Plugin from Folder…).",
+  "api": 1,
+  "minVektor": "0.1.0",
+  "executable": "bin/hello",
+  "permissions": ["readSelection"],
+  "license": "MIT",
+  "readme": "README.md",
+  "icon": "icon.svg",
+  "settings": {
+    "items": [
+      {"key": "greeting", "kind": "text", "label": "Greeting", "default": "Hello",
+       "help": "What the command says before the number of items."}
+    ]
+  },
+  "contributes": {
+    "commands": [
+      {"id": "hello", "title": "Say Hello", "symbol": "hand.wave", "applies": {"to": "both", "minCount": 1}}
+    ],
+    "menus": [
+      {"target": "fileItem", "items": ["hello"]}
+    ]
+  }
+}

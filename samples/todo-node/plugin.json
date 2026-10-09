@@ -1,0 +1,46 @@
+{
+  "id": "dev.vektor.sample.todo-node",
+  "name": "Todo (Node)",
+  "version": "1.0.0",
+  "publisher": "Vektor",
+  "summary": "A todo list in a pane, written in Node.js, kept in the plugin's data folder.",
+  "description": "The Todo sample in Node.js. A plain todo list. Add with Return, edit in place, check off with Space, reorder by dragging or with ⌥↑ and ⌥↓, delete with the Delete key. Completed todos sit in a collapsible group, or are hidden. The list survives restarts and can be kept per workspace. Needs Node.js, which you install yourself.",
+  "api": 1,
+  "minVektor": "0.1.0",
+  "executable": "run.js",
+  "permissions": [],
+  "license": "MIT",
+  "readme": "README.md",
+  "icon": "icon.svg",
+  "settings": {
+    "groups": [
+      {"id": "list", "title": "List", "description": "How the list is shown and where it is kept."},
+      {"id": "storage", "title": "Storage", "description": "Todos are plain text files, never part of a configuration export."}
+    ],
+    "items": [
+      {"key": "showCompleted", "kind": "toggle", "label": "Show completed", "group": "list", "default": true, "scope": "workspace",
+       "help": "Off hides the Completed group. Remembered for each workspace.",
+       "banner": {"text": "This plugin needs Node.js. Install it from nodejs.org or with Homebrew (brew install node); a copy managed by nvm, fnm or Volta is not found by Vektor.", "linkTitle": "Get Node.js", "link": "https://nodejs.org/"}},
+      {"key": "sort", "kind": "choice", "label": "Sort order", "group": "list", "default": "manual",
+       "options": [{"value": "manual", "title": "My order"}, {"value": "newest", "title": "Newest first"}, {"value": "alphabetical", "title": "Alphabetical"}],
+       "help": "Reordering needs “My order”."},
+      {"key": "perWorkspace", "kind": "toggle", "label": "A list for each workspace", "group": "list", "default": false,
+       "help": "On: every workspace has its own todos. Off: one list for all."},
+      {"key": "storage", "kind": "path", "pathKind": "folder", "label": "Storage location", "group": "storage",
+       "help": "Leave empty to keep the todos in this plugin's own data folder."}
+    ]
+  },
+  "contributes": {
+    "views": [
+      {"id": "todos", "title": "Todo", "kind": "list"},
+      {"id": "summary", "title": "Summary", "kind": "detail"}
+    ],
+    "sidebar": [
+      {"id": "todo", "title": "Todo", "symbol": "checklist", "view": "todos"}
+    ],
+    "settingsTabs": [
+      {"id": "todos", "title": "Todos", "symbol": "checklist", "view": "todos"},
+      {"id": "summary", "title": "Summary", "symbol": "chart.bar.doc.horizontal", "view": "summary"}
+    ]
+  }
+}
