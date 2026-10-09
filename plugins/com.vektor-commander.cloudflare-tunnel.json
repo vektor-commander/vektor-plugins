@@ -15,6 +15,15 @@
   "images": [],
   "versions": [
     {
+      "version": "1.0.1",
+      "api": 1,
+      "minVektor": "0.1.0",
+      "url": "https://raw.githubusercontent.com/vektor-commander/vektor-plugins/main/packages/com.vektor-commander.cloudflare-tunnel/1.0.1.zip",
+      "sha256": "98f45d565f72741d4b52ef9a7ed2f604cbf698b50b6ad57a2a0333188852cccf",
+      "published": "2026-10-09T08:49:22Z",
+      "changelog": "Comments only; no change in behaviour."
+    },
+    {
       "version": "1.0.0",
       "api": 1,
       "minVektor": "0.1.0",
