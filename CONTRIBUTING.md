@@ -164,11 +164,4 @@ signed index is published.
 
 ## For the maintainer
 
-* After merging: `vektor-registry build .`, `vektor-registry check .`, `vektor-registry sign . --key <key file>`,
-  `vektor-registry verify . --public-key <the key built into Vektor>`; commit `index.json` and `index.json.sig` together. `sign`
-  refuses a key inside a Git repository or readable by other users.
-* The pull-request check is the workflow in `ci/pull-request-check.yml` with its scripts. It is **not armed yet**: it needs the
-  tools release published and its SHA-256 written into the workflow (`TOOL_SHA256` still holds a placeholder, and the scripts refuse
-  to run with it). Then copy the workflow to `.github/workflows/`. The workflow downloads the release asset, compares its SHA-256
-  before opening it, and runs `vektor-registry check` on the entries the pull request changed. To try it on your Mac without GitHub:
-  `ci/run-check-locally.sh <registry clone> origin/main <branch> --tool <zip> --sha <hash>`.
+See [`MAINTAINING.md`](MAINTAINING.md).
