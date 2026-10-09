@@ -1,5 +1,5 @@
 {
-  "generated" : "2026-10-05T15:48:23Z",
+  "generated" : "2026-10-09T08:52:55Z",
   "plugins" : [
     {
       "categories" : [
@@ -28,6 +28,15 @@
       ],
       "summary" : "Publish a file, a folder or a local port under a public Cloudflare address.",
       "versions" : [
+        {
+          "api" : 1,
+          "changelog" : "Comments only; no change in behaviour.",
+          "minVektor" : "0.1.0",
+          "published" : "2026-10-09T08:49:22Z",
+          "sha256" : "98f45d565f72741d4b52ef9a7ed2f604cbf698b50b6ad57a2a0333188852cccf",
+          "url" : "https://raw.githubusercontent.com/vektor-commander/vektor-plugins/main/packages/com.vektor-commander.cloudflare-tunnel/1.0.1.zip",
+          "version" : "1.0.1"
+        },
         {
           "api" : 1,
           "changelog" : "First version.",
