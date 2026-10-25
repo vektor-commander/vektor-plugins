@@ -1,0 +1,38 @@
+{
+  "id": "com.vektor-commander.board",
+  "name": "Board",
+  "version": "0.1.0",
+  "publisher": "Vektor",
+  "summary": "Kanban boards for each workspace, kept on this Mac or in a folder on one of your connections.",
+  "description": "Kanban boards for each workspace, in the sidebar: columns, tasks with tags, notes and comments. Keep them on this Mac, or share them through a folder on one of your connections and sync.",
+  "api": 2,
+  "minVektor": "1.0.0",
+  "executable": "bin/board",
+  "permissions": ["storage"],
+  "license": "MIT",
+  "readme": "README.md",
+  "icon": "icon.svg",
+  "settings": {
+    "items": [
+      {"key": "place", "kind": "place", "label": "Boards folder", "scope": "workspace",
+       "help": "Where this workspace's boards are kept: a folder on this Mac, or on one of the workspace's connections. Leave it unset to keep them in the plugin's own folder on this Mac."}
+    ]
+  },
+  "contributes": {
+    "commands": [
+      {"id": "newBoard", "title": "New Board…", "symbol": "plus"},
+      {"id": "renameBoard", "title": "Rename…", "symbol": "pencil"},
+      {"id": "deleteBoard", "title": "Delete…", "symbol": "trash"}
+    ],
+    "menus": [
+      {"target": "sidebarEntry", "items": ["newBoard"]},
+      {"target": "sidebarItem", "items": ["renameBoard", "deleteBoard"]}
+    ],
+    "views": [
+      {"id": "board", "title": "Board", "kind": "blocks"}
+    ],
+    "sidebar": [
+      {"id": "boards", "title": "Board", "symbol": "rectangle.split.3x1", "view": "board"}
+    ]
+  }
+}

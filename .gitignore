@@ -1,3 +1,9 @@
 .DS_Store
 # a compiled template program is rebuilt with build.sh, never committed
 templates/swift/bin/
+# SDK build products: the Swift package's build folder and the Node package's dev dependencies (dist/ is committed)
+.build/
+sdk/node/node_modules/
+templates/swift/.build/
+# the Board sample's compiled program is rebuilt with build.sh
+samples/board/bin/

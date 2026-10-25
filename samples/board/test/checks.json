@@ -1,0 +1,287 @@
+{
+  "workspace": {
+    "id": "w1",
+    "name": "Work"
+  },
+  "autoReply": {
+    "dialog/show": {
+      "result": "submit",
+      "values": {
+        "name": "Roadmap",
+        "title": "Write the docs",
+        "description": "With **Markdown**"
+      }
+    },
+    "confirm": {
+      "confirmed": true
+    }
+  },
+  "steps": [
+    {
+      "name": "starts and lists no boards yet",
+      "startup": true,
+      "expect": [
+        {
+          "kind": "response"
+        },
+        {
+          "method": "sidebar/items",
+          "match": {
+            "params.entry": "boards",
+            "params.items": {
+              "count": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "New Board… creates one, listed at once",
+      "send": {
+        "method": "invoke",
+        "params": {
+          "command": "newBoard",
+          "target": {
+            "menu": "sidebarEntry",
+            "entry": "boards"
+          }
+        }
+      },
+      "expect": [
+        {
+          "kind": "response"
+        },
+        {
+          "method": "sidebar/items",
+          "match": {
+            "params.items.0.title": "Roadmap"
+          },
+          "capture": {
+            "board": "params.items.0.id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "opening the board's item shows it",
+      "send": {
+        "method": "view/opened",
+        "params": {
+          "view": "board",
+          "item": "${board}"
+        }
+      },
+      "expect": [
+        {
+          "method": "view/update",
+          "match": {
+            "params.view": "board",
+            "params.description.header.title": "Roadmap",
+            "params.description.header.primary.title": "Add task",
+            "params.description.blocks.children.2.axis": "horizontal",
+            "params.description.blocks.children.2.children.0.children.0.children.1.text": "Backlog",
+            "params.description.blocks.children.2.children.3.children.0.children.1.text": "Done"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Add task asks and the card appears as one inserted block",
+      "send": {
+        "method": "view/event",
+        "params": {
+          "view": "board",
+          "action": "board.add"
+        }
+      },
+      "expect": [
+        {
+          "kind": "request",
+          "method": "dialog/show",
+          "match": {
+            "params.title": "New Task"
+          }
+        },
+        {
+          "method": "view/patch",
+          "match": {
+            "params.view": "board",
+            "params.ops.1.op": "insert",
+            "params.ops.1.block.title": "Write the docs"
+          },
+          "capture": {
+            "task": "params.ops.1.block.id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "the done circle is one replaced card",
+      "send": {
+        "method": "view/event",
+        "params": {
+          "view": "board",
+          "action": "board.done",
+          "block": "${task}",
+          "value": true
+        }
+      },
+      "expect": [
+        {
+          "method": "view/patch",
+          "match": {
+            "params.ops.0.op": "replace",
+            "params.ops.0.block.checked": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "the board/list toggle shows the tasks as a table",
+      "send": {
+        "method": "view/event",
+        "params": {
+          "view": "board",
+          "action": "board.layout",
+          "block": "board.layout",
+          "value": "list"
+        }
+      },
+      "expect": [
+        {
+          "match": {
+            "params.view": "board"
+          },
+          "method": "view/update"
+        }
+      ]
+    },
+    {
+      "name": "the list has the task as a row, sortable by its title",
+      "send": {
+        "method": "view/event",
+        "params": {
+          "view": "board",
+          "action": "board.sort",
+          "block": "board.table",
+          "column": "title",
+          "ascending": false
+        }
+      },
+      "expect": [
+        {
+          "method": "view/patch",
+          "match": {
+            "params.ops.0.op": "replace",
+            "params.ops.0.block.sorted.column": "title",
+            "params.ops.0.block.children.0.cells.0": "Write the docs"
+          }
+        }
+      ]
+    },
+    {
+      "name": "back to the board",
+      "send": {
+        "method": "view/event",
+        "params": {
+          "view": "board",
+          "action": "board.layout",
+          "block": "board.layout",
+          "value": "board"
+        }
+      },
+      "expect": [
+        {
+          "method": "view/update",
+          "match": {
+            "params.description.blocks.children.2.id": "board.columns"
+          }
+        }
+      ]
+    },
+    {
+      "name": "another workspace has no boards",
+      "send": {
+        "method": "workspace/changed",
+        "params": {
+          "id": "w2",
+          "name": "Home"
+        }
+      },
+      "expect": [
+        {
+          "method": "sidebar/items",
+          "match": {
+            "params.items": {
+              "count": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "back in the first workspace the board is there",
+      "send": {
+        "method": "workspace/changed",
+        "params": {
+          "id": "w1",
+          "name": "Work"
+        }
+      },
+      "expect": [
+        {
+          "method": "sidebar/items",
+          "match": {
+            "params.items.0.title": "Roadmap"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Delete… asks, then deletes it",
+      "send": {
+        "method": "invoke",
+        "params": {
+          "command": "deleteBoard",
+          "target": {
+            "menu": "sidebarItem",
+            "entry": "boards",
+            "item": "${board}"
+          }
+        }
+      },
+      "expect": [
+        {
+          "kind": "request",
+          "method": "confirm"
+        },
+        {
+          "kind": "response"
+        },
+        {
+          "method": "sidebar/items",
+          "match": {
+            "params.items": {
+              "count": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "ends when asked",
+      "send": {
+        "method": "shutdown",
+        "params": {
+          "reason": "quit"
+        }
+      },
+      "expect": [
+        {
+          "kind": "response"
+        }
+      ],
+      "expectExit": true
+    }
+  ]
+}
