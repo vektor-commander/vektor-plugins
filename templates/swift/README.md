@@ -35,13 +35,9 @@ signs again with `codesign -s -` to be sure. That is all: **no Developer ID, no 
 package whose compiled program does not carry a valid signature, and `vektor-plugin validate` tells you first. Sign after the last
 change: touching the file afterwards invalidates the signature.
 
-## One architecture or both
+## Apple silicon only
 
-`./build.sh` makes an **arm64** program (Apple silicon), which is what the registry's check runs on. For Macs of both kinds:
-
-    ./build.sh universal
-
-which builds arm64 and x86_64 and joins them with `lipo` into one `bin/hello`, then signs it. Say in your README which you ship.
+`./build.sh` makes an **arm64** program. Vektor runs only on Apple silicon, so there is no Intel build to make.
 
 ## A downloaded folder
 

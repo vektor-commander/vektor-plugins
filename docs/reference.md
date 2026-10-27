@@ -855,8 +855,8 @@ install: nothing (zsh, or a compiled program), or something (Node.js).
   (`Buffer.byteLength`), never `string.length`, and read stdin as bytes. Never `console.log` (that is stdout); use `console.error`
   or the `log` message. Answer `shutdown`, and exit once the answer is written. Use no npm packages, so the folder is the plugin.
 * **Swift or any compiled language** (`templates/swift`): nothing for the user to install. The program must be signed
-  ([Compiled programs and signing](#compiled-programs-and-signing)); `templates/swift/build.sh` builds for arm64 (or a universal
-  binary) and signs ad hoc.
+  ([Compiled programs and signing](#compiled-programs-and-signing)); `templates/swift/build.sh` builds for arm64 (Vektor runs only on
+  Apple silicon) and signs ad hoc.
 * **Python is not offered.** It is not part of macOS (running `python3` on a Mac without the Command Line Tools opens an
   installer prompt), so a Python plugin would fail on many users' Macs and could not say why. If you need it, bundle a compiled
   program instead.

@@ -2,8 +2,7 @@
 # Build the plugin program into bin/hello and sign it ad hoc. Needs the Command Line Tools (xcode-select --install) on the
 # AUTHOR's Mac only: the user of the plugin needs nothing.
 #
-#   ./build.sh              one architecture (arm64): what the registry's check expects
-#   ./build.sh universal    arm64 + x86_64 in one file, for Macs of both kinds
+# The program is built for Apple silicon (arm64) only: Vektor runs on nothing else, and it is what the registry's check expects.
 #
 # Run it again after every change: a change after signing invalidates the signature and macOS kills the program.
 set -euo pipefail
@@ -13,13 +12,7 @@ build() {  # triple -> path of the built program
     swift build -c release --product hello --triple "$1" >&2
     echo "$(swift build -c release --triple "$1" --show-bin-path)/hello"   # --show-bin-path with --product prints an error
 }
-if [[ "${1:-}" == "universal" ]]; then
-    arm=$(build arm64-apple-macosx13.0)
-    intel=$(build x86_64-apple-macosx13.0)
-    lipo -create "$arm" "$intel" -output bin/hello
-else
-    cp "$(build arm64-apple-macosx13.0)" bin/hello
-fi
+cp "$(build arm64-apple-macosx13.0)" bin/hello
 codesign --force -s - bin/hello         # ad hoc: no Developer ID and no notarization are needed
 codesign --verify bin/hello
 lipo -archs bin/hello
