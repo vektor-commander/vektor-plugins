@@ -1,0 +1,27 @@
+{
+  "id": "com.vektor-commander.board",
+  "name": "Board",
+  "publisher": "Vektor",
+  "summary": "Kanban boards for each workspace, kept on this Mac or in a folder on one of your connections.",
+  "description": "Kanban boards for each workspace, in the sidebar: columns, tasks with tags, notes and comments. Keep them on this Mac, or share them through a folder on one of your connections and sync.",
+  "categories": ["Productivity"],
+  "icon": "https://raw.githubusercontent.com/vektor-commander/vektor-plugins/main/packages/com.vektor-commander.board/icon.svg",
+  "readme": "https://raw.githubusercontent.com/vektor-commander/vektor-plugins/main/packages/com.vektor-commander.board/README.md",
+  "homepage": "https://github.com/vektor-commander/vektor-plugins/tree/main/samples/board",
+  "repository": "https://github.com/vektor-commander/vektor-plugins",
+  "license": "MIT",
+  "permissions": ["storage"],
+  "screenshots": [],
+  "images": [],
+  "versions": [
+    {
+      "version": "0.1.0",
+      "api": 2,
+      "minVektor": "1.0.0",
+      "url": "https://raw.githubusercontent.com/vektor-commander/vektor-plugins/main/packages/com.vektor-commander.board/0.1.0.zip",
+      "sha256": "2d8b984e5839163cc44af7ebc58e8dd9d3b02fdfed810fdcf8d1e7b1155b24c6",
+      "published": "2026-10-27T12:41:08Z",
+      "changelog": "First version."
+    }
+  ]
+}
