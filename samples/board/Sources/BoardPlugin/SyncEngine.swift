@@ -1,10 +1,10 @@
 import Foundation
 import VektorPlugin
 
-// The sync of one workspace's boards with its place: the working copy on this Mac, the last synced base, and the place.
+// The sync of one workspace's boards with its place: the local working copy, the last synced base, and the place.
 //
 // One sync:
-//   1. Finish what an interrupted sync left (the journal): a write that reached the place is recorded on this Mac too.
+//   1. Finish what an interrupted sync left (the journal): a write that reached the place is recorded locally too.
 //   2. List the place (names and versions only). Nothing changed here and every version is the one recorded: done, nothing
 //      read, nothing written.
 //   3. Read only the files whose version changed. Merge the index (the list of boards), then each board, record by record,
@@ -14,12 +14,12 @@ import VektorPlugin
 //      that lists them, then the files of deleted boards. Every write is all or nothing (Vektor writes a temporary file and
 //      renames it) and carries `ifVersion`: if anyone changed the file since it was read, Vektor refuses and the sync starts
 //      again from step 2 instead of overwriting.
-//   5. After each write, this Mac's copy and the base are updated and the new version recorded. A journal entry, written
+//   5. After each write, the local copy and the base are updated and the new version recorded. A journal entry, written
 //      before the write and removed after, covers a stop between the two: step 1 of the next sync reads the file back and
 //      adopts the write if the place has it, or forgets it if not. So an interrupted sync leaves each file as it was or as it
 //      was meant to be, never half, and the next one resumes.
 //
-// Unsynced changes on this Mac are never lost: they are only ever replaced by a merge that contains them, or by the user's
+// Unsynced local changes are never lost: they are only ever replaced by a merge that contains them, or by the user's
 // answer to a conflict.
 
 /// A conflict to show the user: both versions as readable text (for the diff block) and the answers that apply.
@@ -40,7 +40,7 @@ public struct SyncConflictItem: Equatable, Sendable, Identifiable {
     public var reason: ConflictReason
     /// "Task “Write the docs”", for a heading.
     public var title: String
-    /// This Mac's version as text; nil when it was deleted on this Mac.
+    /// The local version as text; nil when it was deleted locally.
     public var mine: String?
     /// The place's version as text; nil when it was deleted there.
     public var theirs: String?
@@ -101,9 +101,9 @@ final class SyncEngine {
                 return report
             } catch is PlaceChanged {
                 restarts += 1
-                log("Sync: the place changed while this Mac synced; starting again.")
+                log("Sync: the place changed during the sync; starting again.")
                 if restarts >= Self.attempts {
-                    throw BoardError("The place kept changing while this Mac synced. Nothing was lost; sync again in a moment.")
+                    throw BoardError("The place kept changing during the sync. Nothing was lost; sync again in a moment.")
                 }
             }
         }
@@ -139,7 +139,7 @@ final class SyncEngine {
         return try BoardJSON.board(a, path: path, id: id) == BoardJSON.board(b, path: path, id: id)
     }
 
-    /// The place has what the journal planned: this Mac takes it as the base, and as its copy unless the copy changed since.
+    /// The place has what the journal planned: it becomes the base, and the local copy too unless that changed since.
     private func adopt(_ entry: JournalEntry, version: String?, state: inout SyncStateFile) throws {
         let path = entry.path
         if path == "index.json" {
@@ -195,7 +195,7 @@ final class SyncEngine {
             }
         }
 
-        // Nothing changed on either side: nothing is read or written. (A board file no index names — another Mac half way
+        // Nothing changed on either side: nothing is read or written. (A board file no index names — another copy half way
         // through its sync — changes nothing until the index names it, and then the index's version has changed.)
         let placeUnchanged = remote["index.json"] != nil && state.versions.allSatisfy { remote[$0.key] == $0.value }
             && remote["index.json"] == state.versions["index.json"]
@@ -226,7 +226,7 @@ final class SyncEngine {
         } else if baseIndex != nil {
             wiped = true
             baseIndex = nil
-            log("Sync: the place has no list of boards any more; this Mac's boards are sent to it again.")
+            log("Sync: the place has no list of boards any more; the local boards are sent to it again.")
         }
         func base(_ id: String) throws -> BoardFile? { wiped ? nil : try store.board(id, .base) }
 
@@ -301,7 +301,7 @@ final class SyncEngine {
         for (number, id) in keep.enumerated() {
             progress("Board \(number + 1) of \(keep.count)…")
             let path = Ids.boardPath(id)
-            // Unchanged here since the last sync and unchanged on the place: not even read from this Mac's disk.
+            // Unchanged here since the last sync and unchanged on the place: not even read from the local disk.
             if !wiped, !state.unsynced.contains(path), !answeredBoards.contains(id), let version = remote[path], version == state.versions[path],
                 store.exists(path, .base), store.exists(path, .working)
             {
@@ -371,7 +371,7 @@ final class SyncEngine {
                 try store.setState(state)
                 try store.removeJournal(path)
             }
-            // Board files on this Mac no list names (a board created here while the plugin stopped half way) go too.
+            // Local board files no list names (a board created here while the plugin stopped half way) go too.
             for id in store.boardIDs(.working) where !keepSet.contains(id) { try store.setBoard(nil, id: id, .working) }
         }
 

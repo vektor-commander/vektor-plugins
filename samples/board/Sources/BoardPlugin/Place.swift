@@ -10,7 +10,7 @@ import VektorPlugin
 public protocol PlaceStore: AnyObject {
     /// What to show the user ("neon (SFTP) ▸ /home/me/boards"). Also what tells two places apart between runs.
     var label: String { get }
-    /// Whether the place is on a connection (a Sync button) or a folder on this Mac (saved on each change).
+    /// Whether the place is on a connection (a Sync button) or a local folder (saved on each change).
     var isRemote: Bool { get }
     /// The files of a folder with their versions; empty when the folder is not there.
     func list(_ folder: String) async throws -> [StorageEntry]

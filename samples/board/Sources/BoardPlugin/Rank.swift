@@ -1,7 +1,7 @@
 import Foundation
 
 // Order as a fractional index: every column, task, tag and board has a `rank`, a string of base-36 digits read as the
-// fraction 0.<digits>. Records sort by rank (then by id, so two Macs that inserted at the same place agree on the order). A new
+// fraction 0.<digits>. Records sort by rank (then by id, so two copies that inserted at the same place agree on the order). A new
 // rank between two others always exists, so a move changes only the record that moved: concurrent moves of different tasks
 // merge without a conflict, which an array of ids could not do.
 //

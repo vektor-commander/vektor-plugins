@@ -171,7 +171,7 @@ func viewTests() async {
         let tree = try world.tree
         try checkEqual(world.headerTitle, "Roadmap")
         try checkEqual(world.viewState.description?.header?.primary?.title, "Add task")
-        // The bar: switcher, All tasks, Tags, search, board/list toggle, "…" — and no Sync for a place on this Mac.
+        // The bar: switcher, All tasks, Tags, search, board/list toggle, "…" — and no Sync for a local place.
         try checkEqual(tree.find("board.switch")?.type, "picker")
         try checkEqual(tree.find("board.status")?.fields["options"]?.arrayValue?.compactMap { $0["title"]?.stringValue }, ["All tasks", "Open tasks", "Done tasks"])
         try checkEqual(field(tree.find("board.tags"), "title"), "Tags")
@@ -632,9 +632,9 @@ func viewTests() async {
         try await world.event("board.stab", ["value": "general"])
         tree = try world.tree
         try checkEqual(field(tree.find("board.gname"), "value"), "Roadmap")
-        try check(tree.text("board.sgplace")?.hasPrefix("This Mac, in the plugin's own folder.") == true)
+        try check(tree.text("board.sgplace")?.hasPrefix("Local, in the plugin's own folder.") == true)
         try check((tree.text("board.sgplacehelp") ?? "").contains("Settings ▸ Plugins ▸ Board"), "says where the place is chosen")
-        try check(!tree.all("textField").contains { $0.fields["value"]?.stringValue == "This Mac" }, "the place is not editable here")
+        try check(!tree.all("textField").contains { $0.fields["value"]?.stringValue == "Local" }, "the place is not editable here")
         try await world.event("board.gname", ["block": "board.gname", "value": "Roadmap 2027"])
         try checkEqual(controller.boardName(seed.board), "Roadmap 2027")
         world.script([], confirm: true)
@@ -643,7 +643,7 @@ func viewTests() async {
         try check(try world.tree.has("board.none"), "no boards left: the empty state")
     }
 
-    await test("Sync (a place on a connection): button, progress, \"Last synced\", the error in words; none for this Mac") {
+    await test("Sync (a place on a connection): button, progress, \"Last synced\", the error in words; none for a local place") {
         let local = try await installed()
         let localSeed = try await local.seedBoard()
         try await local.open(localSeed.board)
@@ -689,7 +689,7 @@ func viewTests() async {
             let a = world.controller!
             let seed = try await world.seedBoard()
             _ = await a.sync()
-            let b = try world.mac("B", author: "Bob")
+            let b = try world.copy("B", author: "Bob")
             await b.activate(workspace: Workspace(id: "w1", name: "Work"), place: world.handle)
             _ = await b.sync()
             try await b.updateTask(seed.spec, in: seed.board, title: "Spec by Bob", description: "Bob's text")
@@ -708,12 +708,12 @@ func viewTests() async {
         let diff = tree.all("diff").first
         try check(field(diff, "left")?.hasPrefix("Spec by Ada") == true && field(diff, "left")?.contains("Ada's text") == true, field(diff, "left") ?? "")
         try check(field(diff, "right")?.hasPrefix("Spec by Bob") == true && field(diff, "right")?.contains("Bob's text") == true, field(diff, "right") ?? "")
-        try checkEqual(field(diff, "leftTitle"), "This Mac")
+        try checkEqual(field(diff, "leftTitle"), "Yours")
         try checkEqual(field(diff, "rightTitle"), "In the place")
-        try check(tree.words.contains("Changed on this Mac and in the place, differently."))
+        try check(tree.words.contains("Changed here and in the place, differently."))
         try checkEqual(tree.all("button").filter { ($0.id ?? "").hasPrefix("board.cf.") }.compactMap { field($0, "title") },
-                       ["Keep This Mac's Version", "Keep the Place's Version", "Keep Both"])
-        // Nothing was decided: this Mac still has its version, the place still has Bob's.
+                       ["Keep Your Version", "Keep the Place's Version", "Keep Both"])
+        // Nothing was decided: the local copy still has its version, the place still has Bob's.
         try checkEqual(a.file(seed.board)?.tasks.first { $0.id == seed.spec }?.title, "Spec by Ada")
         try checkEqual(try world.placeJSON("boards/\(seed.board).json").value(at: "tasks")?.arrayValue?.first { $0["id"]?.stringValue == seed.spec }?["title"]?.stringValue, "Spec by Bob")
         // The board view says so too, until it is answered.
@@ -731,7 +731,7 @@ func viewTests() async {
         try check(!(try world.tree.has("board.conflictbanner")))
         try checkEqual(world.toasts.last, "Your answers were applied.")
 
-        // Keep mine: the place gets this Mac's version at the sync that applies the answer.
+        // Keep mine: the place gets the local version at the sync that applies the answer.
         (world, a, seed) = try await scenario("keepMine")
         let mine = try answerButtons(world).first { $0.hasSuffix(".keepMine") }!
         try await world.event("board.resolve", ["block": .string(mine)])
@@ -749,7 +749,7 @@ func viewTests() async {
         a = world.controller!
         seed = try await world.seedBoard()
         _ = await a.sync()
-        let bob = try world.mac("B", author: "Bob")
+        let bob = try world.copy("B", author: "Bob")
         await bob.activate(workspace: Workspace(id: "w1", name: "Work"), place: world.handle)
         _ = await bob.sync()
         try await bob.updateTask(seed.tests, in: seed.board, title: "Tests by Bob")
@@ -758,8 +758,8 @@ func viewTests() async {
         try await world.open(seed.board)
         try await world.event("board.sync")
         let deleted = try world.tree
-        try check(deleted.words.contains("Deleted on this Mac, but changed in the place."), deleted.words)
-        try checkEqual(field(deleted.all("diff").first, "left"), "(deleted on this Mac)")
+        try check(deleted.words.contains("Deleted here, but changed in the place."), deleted.words)
+        try checkEqual(field(deleted.all("diff").first, "left"), "(deleted here)")
         try checkEqual(deleted.all("button").filter { ($0.id ?? "").hasPrefix("board.cf.") }.compactMap { field($0, "title") }, ["Keep It Deleted", "Keep the Place's Version"])
     }
 
@@ -833,7 +833,7 @@ func viewTests() async {
         let kept = try String(contentsOf: broken.host.dataFolder.appendingPathComponent("workspaces/w-w1/working/index.json"))
         try checkEqual(kept, "{ not a board index")
 
-        // A place that has the boards but this Mac has none yet: the view waits for the first sync in words.
+        // A place that has the boards but the local copy has none yet: the view waits for the first sync in words.
         let fresh = try await installed(remote: true, place: true)
         try await fresh.open()
         let buttons = try fresh.tree

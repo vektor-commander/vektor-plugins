@@ -180,7 +180,7 @@ extension BoardViewModel {
         if status.unsynced, !status.isSyncing { line += status.error == nil ? " · changes not sent yet" : "" }
         return .hstack([
             .button(
-                id: names.id("syncbutton"), title: "Sync", symbol: "arrow.triangle.2.circlepath", action: names.id("sync"), tooltip: "Send this Mac's changes and receive the place's",
+                id: names.id("syncbutton"), title: "Sync", symbol: "arrow.triangle.2.circlepath", action: names.id("sync"), tooltip: "Send your changes and receive the place's",
                 busy: status.isSyncing, enabled: !status.isSyncing),
             .text(line, id: names.id("syncinfo"), style: .caption, role: role, lineLimit: 1),
         ], id: names.id("sync"), spacing: 6)
@@ -218,14 +218,14 @@ extension BoardViewModel {
         var items: [Block] = []
         if let error = status.error {
             items.append(.banner(
-                "\(error) Nothing was lost: your changes are still on this Mac. Sync again when you can.", id: names.id("syncerror"), title: "The last sync did not finish",
+                "\(error) Nothing was lost: your changes are kept locally. Sync again when you can.", id: names.id("syncerror"), title: "The last sync did not finish",
                 symbol: "exclamationmark.triangle", role: .danger))
         }
         if !status.conflicts.isEmpty {
             let count = status.conflicts.count
             items.append(.hstack([
                 .banner(
-                    "This Mac and the place both changed \(count == 1 ? "something" : "\(count) things"). Nothing is overwritten until you decide.", id: names.id("conflictbanner"),
+                    "Your copy and the place both changed \(count == 1 ? "something" : "\(count) things"). Nothing is overwritten until you decide.", id: names.id("conflictbanner"),
                     title: "\(count) thing\(count == 1 ? "" : "s") to decide", symbol: "arrow.triangle.merge", role: .warning).grow(),
                 .button(id: names.id("review"), title: "Review…", action: names.id("review"), style: .primary),
             ], id: names.id("conflictrow"), spacing: 8))
@@ -353,7 +353,7 @@ extension BoardViewModel {
                 title: filter.isActive ? "No matching tasks" : "No tasks yet", symbol: "list.bullet"))
         } else {
             let tableColumns = [
-                // Narrow enough that the title keeps room in a pane half a window wide (measured: 560 pt in Vektor's test Mac).
+                // Narrow enough that the title keeps room in a pane half a window wide (measured: 560 pt in Vektor's test VM).
                 Column(id: "title", title: "Title", sortable: true), Column(id: "column", title: "Column", width: 100, sortable: true),
                 Column(id: "tags", title: "Tags", width: 110, sortable: true), Column(id: "done", title: "Done", width: 56, sortable: true),
                 Column(id: "comments", title: "Comments", width: 84, sortable: true), Column(id: "updated", title: "Updated", width: 120, sortable: true),
@@ -530,9 +530,9 @@ extension BoardViewModel {
     private func generalSettings(_ board: String) -> [Block] {
         let place: String
         switch controller.status.mode {
-        case .thisMac: place = "This Mac, in the plugin's own folder. Every change is saved at once."
-        case .folder(let label): place = "A folder on this Mac: \(label). Every change is saved there at once."
-        case .remote(let label): place = "A folder on a connection: \(label). Changes are saved on this Mac at once; Sync sends and receives."
+        case .pluginFolder: place = "Local, in the plugin's own folder. Every change is saved at once."
+        case .folder(let label): place = "A local folder: \(label). Every change is saved there at once."
+        case .remote(let label): place = "A folder on a connection: \(label). Changes are saved locally at once; Sync sends and receives."
         }
         return [
             .text("General", id: "board.sgheading", style: .heading),
@@ -563,7 +563,7 @@ extension BoardViewModel {
             body.append(.empty("Everything from the last sync is settled.", id: "board.cfnone", title: "Nothing to decide", symbol: "checkmark.circle"))
         } else {
             body.append(.text(
-                "This Mac and the place both changed these. Each is shown with both versions; nothing is overwritten until you choose.", id: "board.cfintro", style: .caption))
+                "Your copy and the place both changed these. Each is shown with both versions; nothing is overwritten until you choose.", id: "board.cfintro", style: .caption))
         }
         for item in items {
             let digest = Self.digest(item.id)
@@ -578,14 +578,14 @@ extension BoardViewModel {
     private func conflictBlock(_ item: SyncConflictItem, digest: String) -> Block {
         let reason: String
         switch item.reason {
-        case .bothChanged: reason = "Changed on this Mac and in the place, differently."
-        case .bothAdded: reason = "Both this Mac and the place have it, and they differ."
-        case .deletedHere: reason = "Deleted on this Mac, but changed in the place."
-        case .deletedThere: reason = "Deleted in the place, but changed on this Mac."
+        case .bothChanged: reason = "Changed here and in the place, differently."
+        case .bothAdded: reason = "Both your copy and the place have it, and they differ."
+        case .deletedHere: reason = "Deleted here, but changed in the place."
+        case .deletedThere: reason = "Deleted in the place, but changed here."
         }
         func title(_ choice: ConflictChoice) -> String {
             switch choice {
-            case .keepMine: return item.mine == nil ? "Keep It Deleted" : "Keep This Mac's Version"
+            case .keepMine: return item.mine == nil ? "Keep It Deleted" : "Keep Your Version"
             case .keepTheirs: return item.theirs == nil ? "Delete It, as in the Place" : "Keep the Place's Version"
             case .keepBoth: return "Keep Both"
             }
@@ -593,7 +593,7 @@ extension BoardViewModel {
         let buttons = item.choices.map { choice in
             Block.button(
                 id: names.id("cf", digest, choice.rawValue), title: title(choice), action: names.id("resolve"), style: choice == .keepBoth ? .plain : nil,
-                tooltip: choice == .keepBoth ? "The place's version stays and this Mac's becomes a second task beside it" : nil)
+                tooltip: choice == .keepBoth ? "The place's version stays and yours becomes a second task beside it" : nil)
         }
         return Block.section(
             names.id("cfs", digest),
@@ -601,7 +601,7 @@ extension BoardViewModel {
                 .text("In the board “\(item.boardName)”", id: names.id("cfboard", digest), style: .caption),
                 .text(reason, id: names.id("cfreason", digest)),
                 .diff(
-                    left: item.mine ?? "(deleted on this Mac)", right: item.theirs ?? "(deleted in the place)", id: names.id("cfdiff", digest), leftTitle: "This Mac",
+                    left: item.mine ?? "(deleted here)", right: item.theirs ?? "(deleted in the place)", id: names.id("cfdiff", digest), leftTitle: "Yours",
                     rightTitle: "In the place"),
                 .hstack(buttons, id: names.id("cfbuttons", digest), spacing: 8),
             ], title: item.title)

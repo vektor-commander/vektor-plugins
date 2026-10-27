@@ -1,6 +1,6 @@
 # Board: how it is built
 
-Kanban boards for each workspace: columns, tasks and tags, kept on this Mac or in a folder on one of the workspace's
+Kanban boards for each workspace: columns, tasks and tags, kept locally or in a folder on one of the workspace's
 connections. Written in Swift on the [Swift SDK](../../docs/sdk-swift.md) — a compiled program the user installs nothing for — and
 the SDK's proof of completeness: storage places, sync, sidebar items, workspaces and block views.
 
@@ -9,20 +9,20 @@ What it shows:
 | Feature | Where |
 |---|---|
 | Boards per workspace, listed under the sidebar entry; New, Rename and Delete in the entry's and the items' menus | `BoardPlugin.swift` (`setup`), `plugin.json` ▸ `contributes` |
-| A per-workspace **place** setting: a folder on this Mac or on a connection, reached only through Vektor's storage service | `plugin.json` ▸ `settings`, `Place.swift` |
+| A per-workspace **place** setting: a local folder or on a connection, reached only through Vektor's storage service | `plugin.json` ▸ `settings`, `Place.swift` |
 | A data model that merges record by record: stable ids, `updatedAt` on every record, order as ranks | `Model.swift`, `Rank.swift` |
-| Saved on every change on this Mac; for a connection marked unsynced until **Sync** | `LocalStore.swift`, `BoardController.swift` |
+| Saved on every change locally; for a connection marked unsynced until **Sync** | `LocalStore.swift`, `BoardController.swift` |
 | A three-way sync against the last synced base that asks the user, with both versions, whenever both sides changed one thing | `Merge.swift`, `SyncEngine.swift` |
 | One controller the views call (commands and queries), so the views draw and nothing else | `BoardController.swift`, `BoardQueries.swift` |
 | The board, the list, one task, Board settings and the sync questions, built from blocks only (Swift SDK builders, no layout) | `BoardScreens.swift`, `BoardViewModel.swift` |
 | Every redraw through the SDK's `ViewState.show`: a patch by id, in time linear in the number of cards, so a board of thousands stays usable | `BoardViewModel.swift` (`present`) |
-| Tests on the SDK's test kit: two "Macs" sharing a fake place, a plugin stopped between two writes, a place changed behind its back | `Sources/board-tests/` |
+| Tests on the SDK's test kit: two "copies" sharing a fake place, a plugin stopped between two writes, a place changed behind its back | `Sources/board-tests/` |
 
 ## Where the boards are kept
 
 With no place chosen, a workspace's boards are in the plugin's own data folder. A place is chosen per workspace in the plugin's
-settings: **This Mac** (a folder; every change is written there at once) or a folder on one of the workspace's connections (S3,
-SFTP, SMB …; every change is saved on this Mac at once and marked unsynced, and **Sync** sends and receives). The plugin never
+settings: **Local** (a folder; every change is written there at once) or a folder on one of the workspace's connections (S3,
+SFTP, SMB …; every change is saved locally at once and marked unsynced, and **Sync** sends and receives). The plugin never
 sees an address or a password: Vektor reads and writes for it, through the connection the user already has.
 
 In the place (and in the data folder) the boards are plain, readable JSON:
@@ -35,7 +35,7 @@ the theme's colour roles (`label1` … `label8`, `neutral` …) by name, never a
 
 ## Sync
 
-A sync compares three copies of every record — this Mac's, the place's, and the base (what both last agreed on):
+A sync compares three copies of every record — the local, the place's, and the base (what both last agreed on):
 
 * a record only one side changed (added, changed, deleted) takes that side's version; both made the same change: taken;
 * a record one side deleted and the other left as it was is deleted;
@@ -45,7 +45,7 @@ A sync compares three copies of every record — this Mac's, the place's, and th
 Comments are records of their own, so two people commenting on one task never conflict; a task deleted on one side while it was
 commented on the other is asked about. Writes carry `ifVersion`: if the place changed meanwhile Vektor refuses, and the sync
 starts again instead of overwriting. When nothing changed on either side the sync only lists the place: nothing is read or
-written. Each write is whole (never half a file), board files come before the index that lists them, and a journal on this Mac
+written. Each write is whole (never half a file), board files come before the index that lists them, and a journal locally
 lets the next sync finish what a quit or a lost connection interrupted.
 
 ## The views
@@ -63,7 +63,7 @@ All of it is blocks the Swift SDK builds (plugin API 2); Vektor draws them with 
 | A task opened: title, done, column, tags, Markdown description with a preview, comments (author, time, text; add; delete your own) | `textField`, `checkbox`, `picker`, `tagPicker`, `textArea`, `markdown`, `text`, icon `button`s |
 | List view: title, column, tags, done, comments, updated; sortable; several rows selected and deleted at once | `table` with `row`s, `selection: multiple`, `sort`, a `button` |
 | Board settings: Columns (order, name, colour), Tags, General (name; the place, read-only, in words) | a segmented `picker` choosing what is drawn, `textField`, `rolePicker`, icon `button`s |
-| Questions after a sync: each record with both versions side by side, the reason, the choices | a `section` per question with a `diff` (this Mac left, the place right), `text` and `button`s |
+| Questions after a sync: each record with both versions side by side, the reason, the choices | a `section` per question with a `diff` (yours left, the place right), `text` and `button`s |
 | Empty, loading and error states | `empty`, `spinner`, `banner`, `status`, a "Try Again" `button` |
 
 **What goes over the wire.** The controller keeps an index per board, so drawing is one pass over the tasks. A change asks for a

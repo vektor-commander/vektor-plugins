@@ -23,11 +23,11 @@ public enum MergePolicy: String, Sendable { case record, field }
 
 /// What the user answers to a conflict.
 public enum ConflictChoice: String, Sendable, CaseIterable {
-    /// This Mac's version (which may be "deleted").
+    /// The local version (which may be "deleted").
     case keepMine
     /// The place's version (which may be "deleted").
     case keepTheirs
-    /// Tasks only, when both sides have one: the place's version stays, this Mac's becomes a second task beside it.
+    /// Tasks only, when both sides have one: the place's version stays, yours becomes a second task beside it.
     case keepBoth
 }
 
@@ -37,9 +37,9 @@ public enum ConflictReason: String, Sendable {
     case bothChanged
     /// Both sides added it (the same id), differently. Also the first sync with a place that already holds the same board.
     case bothAdded
-    /// Deleted on this Mac, changed on the place.
+    /// Deleted locally, changed on the place.
     case deletedHere
-    /// Deleted on the place, changed on this Mac.
+    /// Deleted on the place, changed locally.
     case deletedThere
 }
 
@@ -49,7 +49,7 @@ struct ConflictResolution: Sendable {
     var choice: ConflictChoice
     var mine: String
     var theirs: String
-    /// The id of this Mac's copy, for `.keepBoth`.
+    /// The id of the local copy, for `.keepBoth`.
     var copyID: String?
 }
 
@@ -79,7 +79,7 @@ func conflictKey(scope: String, kind: String, id: String) -> String { "\(scope)|
 struct RecordMerge<R: BoardRecordType> {
     var records: [R]
     var conflicts: [RecordConflict<R>]
-    /// Records that only a resolution created (this Mac's copy of a "keep both").
+    /// Records that only a resolution created (the local copy of a "keep both").
     var copies: [R] = []
 }
 

@@ -91,14 +91,14 @@ final class Clock {
     }
 }
 
-/// One test world: a test host (Vektor) with a fake place "boards", and as many "Macs" (controllers with their own data
+/// One test world: a test host (Vektor) with a fake place "boards", and as many "copies" (controllers with their own data
 /// folders) as a test needs, all reaching the place through the plugin's storage service on the wire.
 @MainActor
 final class World {
     let host: TestHost
     let plugin: Plugin
     let clock: Clock
-    /// The place's folder on disk: what "another Mac" or a person editing the JSON by hand changes.
+    /// The place's folder on disk: what "another copy" or a person editing the JSON by hand changes.
     let placeFolder: URL
     let handle: PlaceHandle
     var logs: [String] = []
@@ -109,7 +109,7 @@ final class World {
     static var all: [World] = []
 
     /// With `install`, the plugin itself is registered (`setup`), as Vektor runs it: its own controller (the one the view draws) is
-    /// `controller`, and `mac(…)` makes the other Macs that share the place. `data` is put into the plugin's data folder first.
+    /// `controller`, and `copy(…)` makes the other copies that share the place. `data` is put into the plugin's data folder first.
     init(remote: Bool = true, workspace: Workspace? = Workspace(id: "w1", name: "Work"), install: Bool = false, author: String = "Ada", place: Bool = true, prepare: ((URL) throws -> Void)? = nil) async throws {
         var options = TestHost.Options()
         // An installed plugin starts with no place chosen (the folder exists in the test host as "pending"), then is told its place
@@ -131,11 +131,11 @@ final class World {
         handle = try JSONValue.object(object).decode(PlaceHandle.self)
         World.all.append(self)
         if install { await settleStartup() }
-        // The fake place always says "this Mac"; a place on a connection is told to the plugin the way Vektor tells it: by a
+        // The fake place is always local; a place on a connection is told to the plugin the way Vektor tells it: by a
         // settings change that carries the handle.
         if install, place {
             host.send("settingsChanged", ["settings": ["place": .object(object)]])
-            try await until("the plugin knows its place") { self.controller?.status.mode != .thisMac }
+            try await until("the plugin knows its place") { self.controller?.status.mode != .pluginFolder }
             await controller?.settle()
         }
     }
@@ -149,11 +149,11 @@ final class World {
         await controller?.settle()
     }
 
-    /// A Mac: its own data folder (unless given, for a restart), reaching the place through `wrap`.
-    func mac(_ name: String, data: URL? = nil, author: String? = nil, policy: MergePolicy = .record, wrap: ((PlaceStore) -> PlaceStore)? = nil) throws -> BoardController {
+    /// A copy: its own data folder (unless given, for a restart), reaching the place through `wrap`.
+    func copy(_ name: String, data: URL? = nil, author: String? = nil, policy: MergePolicy = .record, wrap: ((PlaceStore) -> PlaceStore)? = nil) throws -> BoardController {
         let folder = try data ?? temporaryFolder(name)
         let plugin = self.plugin
-        var options = BoardController.Options(author: author ?? "Mac \(name)", now: { [clock] in clock.tick() }, policy: policy)
+        var options = BoardController.Options(author: author ?? "Author \(name)", now: { [clock] in clock.tick() }, policy: policy)
         options.log = { [weak self] message in self?.logs.append(message) }
         return BoardController(dataFolder: folder, options: options) { handle in
             let place = VektorPlace(plugin: plugin, handle: handle)
@@ -179,7 +179,7 @@ final class World {
     }
 }
 
-/// A place that can be made to fail: the plugin is "killed" right before or right after a write, or another Mac writes the
+/// A place that can be made to fail: the plugin is "killed" right before or right after a write, or another copy writes the
 /// same file just before this one does (so `ifVersion` refuses).
 @MainActor
 final class FaultyPlace: PlaceStore {
@@ -191,7 +191,7 @@ final class FaultyPlace: PlaceStore {
     var killBeforeWrite: Int?
     /// Stop right after the write with this number reached the place, before the plugin heard the answer.
     var killAfterWrite: Int?
-    /// Runs before every write (the path): another Mac acting at the worst moment.
+    /// Runs before every write (the path): another copy acting at the worst moment.
     var beforeWrite: ((String) async throws -> Void)?
     private(set) var writes = 0
     private(set) var reads = 0

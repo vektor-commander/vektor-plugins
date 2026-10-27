@@ -1,7 +1,7 @@
 import Foundation
 import VektorPlugin
 
-// One workspace's boards on this Mac, in the plugin's data folder (`$VEKTOR_PLUGIN_DATA`):
+// One workspace's local boards, in the plugin's data folder (`$VEKTOR_PLUGIN_DATA`):
 //
 //     workspaces/<workspace>/working/index.json, working/boards/<id>.json    what the user sees; saved on every change
 //     workspaces/<workspace>/sync/base/…                                    the last synced copy (the merge's base)
@@ -28,13 +28,13 @@ struct SyncStateFile: Codable, Equatable {
     var placeLabel: String?
     /// The version of each file on the place at the last sync (`index.json`, `boards/<id>.json`).
     var versions: [String: String] = [:]
-    /// Files changed on this Mac since they were last synced.
+    /// Files changed locally since they were last synced.
     var unsynced: [String] = []
     /// When the last sync finished without an error or a question (ISO 8601).
     var lastSynced: String?
 }
 
-/// A write to the place about to happen: what it will write (nil: a delete), and this Mac's copy and the base when it was
+/// A write to the place about to happen: what it will write (nil: a delete), and the local copy and the base when it was
 /// planned. If the plugin stops before it is recorded, the next sync finds out whether it reached the place (see SyncEngine).
 struct JournalEntry: Codable, Equatable {
     var path: String
@@ -132,7 +132,7 @@ final class LocalStore {
         if manager.fileExists(atPath: base.path) { try manager.removeItem(at: base) }
         var state = SyncStateFile()
         state.placeLabel = label
-        // Everything this Mac holds is unsynced with the new place.
+        // Everything held locally is unsynced with the new place.
         state.unsynced = (try? index(.working)).map { ["index.json"] + $0.boards.map { Ids.boardPath($0.id) } } ?? []
         try setState(state)
     }

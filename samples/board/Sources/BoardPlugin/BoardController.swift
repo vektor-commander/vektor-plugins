@@ -3,8 +3,8 @@ import VektorPlugin
 
 // The controller: everything the views (the sidebar entry, the board and list views, Board settings, the conflict sheet) ask
 // of the plugin, and nothing they draw. A view calls a command (`createBoard`, `moveTask(…)`, `addComment` …), the controller
-// changes the active workspace's boards, saves them on this Mac at once, marks them unsynced when a place is set (or, for a
-// folder on this Mac, writes them there at once), and calls `onChange` so the view draws again from the queries
+// changes the active workspace's boards, saves them locally at once, marks them unsynced when a place is set (or, for a
+// local folder, writes them there at once), and calls `onChange` so the view draws again from the queries
 // (`boards`, `columns(of:)`, `listRows(of:sort:)` …).
 //
 // Commands wait for a sync that is running (they never interleave with one), so a sync never misses or overwrites a change.
@@ -24,22 +24,22 @@ public enum BoardChange: Equatable, Sendable {
 
 /// Where the active workspace's boards are kept.
 public enum StorageMode: Equatable, Sendable {
-    /// The plugin's own data folder on this Mac (no place chosen). Saved on each change; no sync.
-    case thisMac
-    /// A folder on this Mac chosen as the place: saved on each change and written there at once; no Sync button.
+    /// The plugin's own local data folder (no place chosen). Saved on each change; no sync.
+    case pluginFolder
+    /// A local folder chosen as the place: saved on each change and written there at once; no Sync button.
     case folder(label: String)
-    /// A folder on one of the workspace's connections: saved on this Mac at once and marked unsynced; Sync sends and receives.
+    /// A folder on one of the workspace's connections: saved locally at once and marked unsynced; Sync sends and receives.
     case remote(label: String)
 }
 
 public struct SyncStatus: Equatable, Sendable {
-    public var mode: StorageMode = .thisMac
+    public var mode: StorageMode = .pluginFolder
     public var isSyncing = false
     /// What a running sync is doing ("Board 2 of 5…").
     public var progress: String?
     /// When the last sync finished without an error or a question.
     public var lastSynced: Date?
-    /// Changes on this Mac the place does not have yet (or questions not answered yet).
+    /// Local changes the place does not have yet (or questions not answered yet).
     public var unsynced = false
     /// The last sync's error, in plain words.
     public var error: String?
@@ -126,7 +126,7 @@ public final class BoardController {
     // MARK: - Workspace and place
 
     /// Shows `workspace`'s boards, kept in `place` (nil: the plugin's data folder). Call it after `startup`, after a workspace
-    /// switch and when the place setting changes. A folder on this Mac is synced at once (it is the storage).
+    /// switch and when the place setting changes. A local folder is synced at once (it is the storage).
     public func activate(workspace: Workspace?, place handle: PlaceHandle?) async {
         await lock.run {
             let sameWorkspace = activated && workspace?.id == self.workspace?.id
@@ -209,7 +209,7 @@ public final class BoardController {
         }
     }
 
-    /// Deletes a board and only its data: its file on this Mac now, its file on the place at the next sync. Ask first.
+    /// Deletes a board and only its data: its file locally now, its file on the place at the next sync. Ask first.
     public func deleteBoard(_ id: String) async throws {
         try await mutate { [self] in
             guard index.boards.contains(where: { $0.id == id }) else { throw missingBoard }
@@ -458,7 +458,7 @@ public final class BoardController {
 
     // MARK: - Sync
 
-    /// Sends and receives (a place on a connection), or writes the folder (a folder on this Mac). Nil without a place. Never
+    /// Sends and receives (a place on a connection), or writes the folder (a local folder). Nil without a place. Never
     /// loses an unsynced change; the report's conflicts are in `status.conflicts` until answered.
     @discardableResult
     public func sync() async -> SyncReport? {
@@ -475,7 +475,7 @@ public final class BoardController {
         if status.conflicts.isEmpty { await sync() }
     }
 
-    /// Waits until a running or wanted automatic sync (a folder on this Mac) is done.
+    /// Waits until a running or wanted automatic sync (a local folder) is done.
     public func settle() async {
         while autoSyncRunning || autoSyncWanted { try? await Task.sleep(nanoseconds: 5_000_000) }
         await lock.run {}
@@ -664,7 +664,7 @@ public final class BoardController {
         let sorted = ranks.sorted()
         let at = max(0, min(position, sorted.count))
         let low = at > 0 ? sorted[at - 1] : nil
-        // Two records with the same rank (two Macs inserted at the same place) cannot have a third between them: it goes after both.
+        // Two records with the same rank (two copies inserted at the same place) cannot have a third between them: it goes after both.
         let high = sorted[at...].first { low == nil || $0 > low! }
         return Rank.between(low, high)
     }

@@ -506,11 +506,11 @@ public final class BoardViewModel {
 
     func askDeleteBoard(_ id: String) async throws {
         guard let name = controller.boardName(id) else { throw controller.missingBoard }
-        let remote = controller.status.mode != .thisMac
+        let remote = controller.status.mode != .pluginFolder
         let confirmed = try await confirm(ConfirmParams(
             title: "Delete “\(name)”?",
             message: remote
-                ? "Its columns, tasks, tags and comments are deleted on this Mac now, and in the place at the next sync. Other boards are not touched."
+                ? "Its columns, tasks, tags and comments are deleted locally now, and in the place at the next sync. Other boards are not touched."
                 : "Its columns, tasks, tags and comments are deleted. Other boards are not touched.",
             confirmTitle: "Delete"))
         guard confirmed else { return }

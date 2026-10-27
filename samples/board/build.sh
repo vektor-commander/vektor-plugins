@@ -3,7 +3,7 @@
 # AUTHOR's Mac only: the user of the plugin needs nothing.
 #
 #   ./build.sh              one architecture (arm64): what the registry's check expects
-#   ./build.sh universal    arm64 + x86_64 in one file, for Macs of both kinds
+#   ./build.sh universal    arm64 + x86_64 in one file, for Apple silicon and Intel Macs
 #
 # Run it again after every change: a change after signing invalidates the signature and macOS kills the program.
 set -euo pipefail

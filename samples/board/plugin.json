@@ -1,10 +1,10 @@
 {
   "id": "com.vektor-commander.board",
   "name": "Board",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "Vektor",
-  "summary": "Kanban boards for each workspace, kept on this Mac or in a folder on one of your connections.",
-  "description": "Kanban boards for each workspace, in the sidebar: columns, tasks with tags, notes and comments. Keep them on this Mac, or share them through a folder on one of your connections and sync.",
+  "summary": "Kanban boards for each workspace, kept locally or in a folder on one of your connections.",
+  "description": "Kanban boards for each workspace, in the sidebar: columns, tasks with tags, notes and comments. Keep them locally, or share them through a folder on one of your connections and sync.",
   "api": 2,
   "minVektor": "1.0.0",
   "executable": "bin/board",
@@ -15,7 +15,7 @@
   "settings": {
     "items": [
       {"key": "place", "kind": "place", "label": "Boards folder", "scope": "workspace",
-       "help": "Where this workspace's boards are kept: a folder on this Mac, or on one of the workspace's connections. Leave it unset to keep them in the plugin's own folder on this Mac."}
+       "help": "Where this workspace's boards are kept: a local folder, or on one of the workspace's connections. Leave it unset to keep them in the plugin's own folder locally."}
     ]
   },
   "contributes": {

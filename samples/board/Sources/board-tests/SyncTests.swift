@@ -3,17 +3,17 @@ import Foundation
 import VektorPlugin
 import VektorPluginTestKit
 
-// Storage and sync, against the test kit's fake place over the real protocol. "Mac A" and "Mac B" are two controllers with
-// their own data folders sharing one place, as two Macs sharing a folder on a server would.
+// Storage and sync, against the test kit's fake place over the real protocol. "A" and "B" are two controllers with
+// their own data folders sharing one place, as two copies sharing a folder on a server would.
 
 private let work = Workspace(id: "w1", name: "Work")
 
-/// A place with one synced board ("Roadmap": One, Two, Three in Backlog) that both Macs have.
+/// A place with one synced board ("Roadmap": One, Two, Three in Backlog) that both copies have.
 @MainActor
 private func pair(policy: MergePolicy = .record, wrapA: ((PlaceStore) -> PlaceStore)? = nil) async throws -> (World, BoardController, BoardController, String) {
     let world = try await World()
-    let a = try world.mac("A", policy: policy, wrap: wrapA)
-    let b = try world.mac("B", policy: policy)
+    let a = try world.copy("A", policy: policy, wrap: wrapA)
+    let b = try world.copy("B", policy: policy)
     await a.activate(workspace: work, place: world.handle)
     await b.activate(workspace: work, place: world.handle)
     let board = try await a.createBoard(name: "Roadmap")
@@ -28,9 +28,9 @@ private func pair(policy: MergePolicy = .record, wrapA: ((PlaceStore) -> PlaceSt
 /// Syncs and expects no error and no question.
 @MainActor
 @discardableResult
-private func syncClean(_ mac: BoardController, line: Int = #line) async throws -> SyncReport {
-    guard let report = await mac.sync() else { throw Failure(description: "line \(line): no sync (no place)") }
-    if let error = mac.status.error { throw Failure(description: "line \(line): the sync failed: \(error)") }
+private func syncClean(_ copy: BoardController, line: Int = #line) async throws -> SyncReport {
+    guard let report = await copy.sync() else { throw Failure(description: "line \(line): no sync (no place)") }
+    if let error = copy.status.error { throw Failure(description: "line \(line): the sync failed: \(error)") }
     try check(report.conflicts.isEmpty, "line \(line): unexpected questions: \(report.conflicts.map(\.title))")
     return report
 }
@@ -43,9 +43,9 @@ private func placeBoard(_ world: World, _ board: String) throws -> BoardFile {
 
 @MainActor
 func syncTests() async {
-    await test("storage round-trip: what one Mac writes, another reads exactly; files are readable JSON with ids and updatedAt") {
+    await test("storage round-trip: what one copy writes, another reads exactly; files are readable JSON with ids and updatedAt") {
         let world = try await World()
-        let a = try world.mac("A")
+        let a = try world.copy("A")
         await a.activate(workspace: work, place: world.handle)
         try check(a.status.showsSyncButton, "a place on a connection has a Sync button")
         let board = try await a.createBoard(name: "Round trip")
@@ -53,7 +53,7 @@ func syncTests() async {
         let task = try await a.addTask(to: board, column: column, title: "Task", description: "**Markdown**\n\n- a\n- b")
         try await a.setTaskTags(task, in: board, names: ["x", "y"])
         try await a.addComment(to: task, in: board, text: "a comment")
-        // Saved on this Mac at once, marked unsynced; the place has nothing yet.
+        // Saved locally at once, marked unsynced; the place has nothing yet.
         try check(a.status.unsynced)
         try check(!world.placeHas("index.json"))
         try await syncClean(a)
@@ -64,7 +64,7 @@ func syncTests() async {
         try checkEqual(index.value(at: "boards.0.name"), "Round trip")
         try check(index.value(at: "boards.0.updatedAt")?.stringValue != nil)
 
-        let b = try world.mac("B")
+        let b = try world.copy("B")
         await b.activate(workspace: work, place: world.handle)
         try await syncClean(b)
         try checkEqual(b.file(board), a.file(board))
@@ -72,7 +72,7 @@ func syncTests() async {
         try checkEqual(try placeBoard(world, board), a.file(board)!)
     }
 
-    await test("remote newer: the other Mac's change arrives; nothing is written back") {
+    await test("remote newer: the other copy's change arrives; nothing is written back") {
         let (world, a, b, board) = try await pair()
         try await b.updateTask(b.taskID("Two", in: board)!, in: board, title: "Two (from B)")
         try await syncClean(b)
@@ -83,7 +83,7 @@ func syncTests() async {
         try checkEqual(a.layout(board), "Backlog: One, Two (from B), Three | In Progress:  | Review:  | Done: ")
     }
 
-    await test("local newer: this Mac's change is saved at once, marked unsynced, and sent by Sync") {
+    await test("local newer: the local change is saved at once, marked unsynced, and sent by Sync") {
         let (world, a, b, board) = try await pair()
         let three = a.taskID("Three", in: board)!
         try await a.moveTask(three, in: board, to: a.columnID("Done", in: board)!, at: 0)
@@ -96,7 +96,7 @@ func syncTests() async {
         try checkEqual(b.layout(board), "Backlog: One, Two | In Progress:  | Review:  | Done: Three")
     }
 
-    await test("both changed different records: everything merges, no question, on both Macs") {
+    await test("both changed different records: everything merges, no question, on both copies") {
         let (world, a, b, board) = try await pair()
         let one = a.taskID("One", in: board)!
         let two = a.taskID("Two", in: board)!
@@ -137,14 +137,14 @@ func syncTests() async {
         try checkEqual(b.status.conflicts, report.conflicts)
         try check(b.status.unsynced)
         try checkEqual(try placeBoard(world, board), placeBefore, "nothing written while the question is open")
-        try checkEqual(b.task(two, in: board)?.task.title, "Two by B", "this Mac keeps its version meanwhile")
+        try checkEqual(b.task(two, in: board)?.task.title, "Two by B", "B keeps its version meanwhile")
         // Another Sync without an answer asks again and still writes nothing.
         try checkEqual(await b.sync()!.conflicts.map(\.id), [question.id])
         try checkEqual(try placeBoard(world, board), placeBefore)
     }
 
     for choice in ConflictChoice.allCases {
-        await test("both changed the same record: “\(choice.rawValue)” gives the expected result on both Macs") {
+        await test("both changed the same record: “\(choice.rawValue)” gives the expected result on both copies") {
             let (world, a, b, board) = try await pair()
                 let two = a.taskID("Two", in: board)!
             try await a.updateTask(two, in: board, title: "Two by A")
@@ -235,7 +235,7 @@ func syncTests() async {
         try checkEqual(a.comments(of: three, in: board).map(\.text), ["still needed!"])
     }
 
-    await test("a board deleted on one Mac while changed on the other: asked; deleted where it was unchanged") {
+    await test("a board deleted on one copy while changed on the other: asked; deleted where it was unchanged") {
         do {
             let (world, a, b, board) = try await pair()
             try await a.deleteBoard(board)
@@ -311,7 +311,7 @@ func syncTests() async {
         var place: FaultyPlace?
         let world = try await World()
         let data = try temporaryFolder("A")
-        let a = try world.mac("A", data: data) { inner in
+        let a = try world.copy("A", data: data) { inner in
             let faulty = FaultyPlace(inner)
             faulty.killBeforeWrite = 3    // board 1, board 2, then the index: stopped before the index
             place = faulty
@@ -327,13 +327,13 @@ func syncTests() async {
         try checkEqual(place!.writes, 3)
         // The place: both board files, no index yet — a reader sees no board (old state), never a half one.
         try check(world.placeHas("boards/\(first).json") && !world.placeHas("index.json"))
-        let b = try world.mac("B")
+        let b = try world.copy("B")
         await b.activate(workspace: work, place: world.handle)
         try await syncClean(b)
-        try checkEqual(b.boards.count, 0, "another Mac sees the old state")
+        try checkEqual(b.boards.count, 0, "another copy sees the old state")
 
         // The plugin starts again (a new controller on the same data folder) and syncs: it resumes.
-        let again = try world.mac("A", data: data)
+        let again = try world.copy("A", data: data)
         await again.activate(workspace: work, place: world.handle)
         try check(again.status.unsynced)
         try await syncClean(again)
@@ -344,11 +344,11 @@ func syncTests() async {
         try checkEqual(b.file(second), again.file(second))
     }
 
-    await test("an interrupted sync (stopped after a write reached the place, before this Mac recorded it) resumes without a question") {
+    await test("an interrupted sync (stopped after a write reached the place, before it was recorded locally) resumes without a question") {
         let (world, _, b, board) = try await pair()
         let data = try temporaryFolder("C")
         var place: FaultyPlace?
-        let c = try world.mac("C", data: data) { inner in
+        let c = try world.copy("C", data: data) { inner in
             let faulty = FaultyPlace(inner)
             place = faulty
             return faulty
@@ -366,7 +366,7 @@ func syncTests() async {
         try check(FileManager.default.fileExists(atPath: data.appendingPathComponent("workspaces/w-w1/sync/journal").path))
 
         // Edited again on C before the next sync: kept, on top of what was written.
-        let again = try world.mac("C", data: data)
+        let again = try world.copy("C", data: data)
         await again.activate(workspace: work, place: world.handle)
         try await again.updateTask(again.taskID("Three", in: board)!, in: board, title: "Three by C")
         let report = try await syncClean(again)
@@ -388,7 +388,7 @@ func syncTests() async {
         try checkEqual(b.task(b.taskID("Precious", in: board)!, in: board)?.task.title, "Precious")
     }
 
-    await test("a place emptied after a sync is never read as “every board deleted”: this Mac's boards are sent again") {
+    await test("a place emptied after a sync is never read as “every board deleted”: the local boards are sent again") {
         let (world, a, _, board) = try await pair()
         for name in try FileManager.default.contentsOfDirectory(atPath: world.placeFolder.path) {
             try FileManager.default.removeItem(at: world.placeFolder.appendingPathComponent(name))
@@ -398,9 +398,9 @@ func syncTests() async {
         try checkEqual(try placeBoard(world, board), a.file(board)!)
     }
 
-    await test("a Mac with boards of its own joins a place with other boards: both sets, nothing asked") {
+    await test("a copy with boards of its own joins a place with other boards: both sets, nothing asked") {
         let (world, a, _, board) = try await pair()
-        let c = try world.mac("C")
+        let c = try world.copy("C")
         await c.activate(workspace: work, place: nil)
         let own = try await c.createBoard(name: "C's own")
         await c.activate(workspace: work, place: world.handle)
@@ -420,9 +420,9 @@ func syncTests() async {
         try check(a.status.unsynced)
     }
 
-    await test("a folder on this Mac as the place: saved there on each change, no Sync button") {
+    await test("a local folder as the place: saved there on each change, no Sync button") {
         let world = try await World(remote: false)
-        let a = try world.mac("A")
+        let a = try world.copy("A")
         await a.activate(workspace: work, place: world.handle)
         try check(!a.status.showsSyncButton)
         let board = try await a.createBoard(name: "Local")

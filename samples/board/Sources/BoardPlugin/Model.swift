@@ -163,7 +163,7 @@ public struct BoardFile: Codable, Equatable, Sendable {
     }
 
     /// Sorted the one way every copy is sorted: columns and tags by rank, tasks by column then rank, comments by task then
-    /// time. Ties (two Macs inserting at the same place) are broken by id, so every Mac shows the same order.
+    /// time. Ties (two copies inserting at the same place) are broken by id, so every copy shows the same order.
     public func normalized() -> BoardFile {
         var copy = self
         copy.columns.sort { ($0.rank, $0.id) < ($1.rank, $1.id) }

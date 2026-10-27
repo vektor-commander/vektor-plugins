@@ -1,6 +1,6 @@
 # Board
 
-Kanban boards for each workspace, right in Vektor's sidebar. Plan work in columns, keep tasks with tags, notes and comments, and keep the boards on this Mac or share them through one of your connections.
+Kanban boards for each workspace, right in Vektor's sidebar. Plan work in columns, keep tasks with tags, notes and comments, and keep the boards locally or share them through one of your connections.
 
 ## Getting started
 
@@ -31,12 +31,12 @@ The **…** of a column renames it, changes its colour, moves it or deletes it. 
 
 ## Where your boards are kept
 
-Without any setup, a workspace's boards stay on this Mac, in the plugin's own folder.
+Without any setup, a workspace's boards stay local, in the plugin's own folder.
 
 To keep them somewhere else, choose a **Boards folder** in the plugin's settings:
 
-- **A folder on this Mac**: every change is written there at once.
-- **A folder on one of the workspace's connections** (S3, SFTP, SMB…): every change is saved on this Mac at once, and **Sync** sends your changes and brings in everyone else's. Several Macs, or several people, can share one board this way.
+- **A local folder**: every change is written there at once.
+- **A folder on one of the workspace's connections** (S3, SFTP, SMB…): every change is saved locally at once, and **Sync** sends your changes and brings in everyone else's. Several people, or one person on several computers, can share one board this way.
 
 The plugin uses the connection you already set up in Vektor. It never sees its address or password.
 
@@ -44,6 +44,6 @@ The boards are plain JSON files, so they stay readable outside Vektor and can be
 
 ## When both sides changed the same thing
 
-Sync merges changes task by task and comment by comment, so people editing different tasks, or commenting on the same one, never get in each other's way. When this Mac and the shared folder changed the **same** task differently, Sync asks you instead of guessing. It shows both versions side by side, and you choose **Keep This Mac's Version**, **Keep the Place's Version** or **Keep Both**. Nothing is overwritten until you answer.
+Sync merges changes task by task and comment by comment, so people editing different tasks, or commenting on the same one, never get in each other's way. When your copy and the shared folder changed the **same** task differently, Sync asks you instead of guessing. It shows both versions side by side, and you choose **Keep Your Version**, **Keep the Place's Version** or **Keep Both**. Nothing is overwritten until you answer.
 
 If a sync is interrupted (Vektor quit, the connection dropped), the next sync finishes it.
