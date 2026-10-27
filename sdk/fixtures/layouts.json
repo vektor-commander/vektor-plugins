@@ -1,0 +1,1277 @@
+{
+  "board": {
+    "type": "vstack",
+    "id": "board",
+    "children": [
+      {
+        "type": "hstack",
+        "id": "board.bar",
+        "children": [
+          {
+            "type": "searchField",
+            "id": "board.search",
+            "action": "board.search",
+            "value": "",
+            "placeholder": "Search cards"
+          },
+          {
+            "type": "picker",
+            "id": "board.filter",
+            "action": "board.filter",
+            "options": [
+              {
+                "value": "board.all",
+                "title": "All"
+              },
+              {
+                "value": "docs",
+                "title": "docs"
+              }
+            ],
+            "value": "board.all"
+          },
+          {
+            "type": "spacer"
+          },
+          {
+            "type": "button",
+            "id": "sync",
+            "title": "Sync",
+            "symbol": "arrow.triangle.2.circlepath",
+            "action": "sync"
+          }
+        ]
+      },
+      {
+        "type": "scroll",
+        "id": "board.scroll",
+        "axis": "horizontal",
+        "children": [
+          {
+            "type": "hstack",
+            "id": "board.columns",
+            "children": [
+              {
+                "type": "panel",
+                "id": "board.col.todo",
+                "title": "To do",
+                "role": "label6",
+                "children": [
+                  {
+                    "type": "hstack",
+                    "id": "board.head.todo",
+                    "children": [
+                      {
+                        "type": "count",
+                        "count": 2,
+                        "id": "board.count.todo"
+                      },
+                      {
+                        "type": "spacer"
+                      },
+                      {
+                        "type": "button",
+                        "id": "board.add.todo",
+                        "symbol": "plus",
+                        "style": "icon",
+                        "tooltip": "Add a card",
+                        "action": "board.add"
+                      },
+                      {
+                        "type": "menu",
+                        "menu": [
+                          {
+                            "title": "Rename Column",
+                            "action": "board.column.rename",
+                            "symbol": "pencil"
+                          },
+                          {
+                            "title": "Delete Column",
+                            "action": "board.column.delete",
+                            "symbol": "trash",
+                            "destructive": true
+                          }
+                        ],
+                        "id": "board.colmenu.todo",
+                        "label": "To do actions"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "id": "board.list.todo",
+                    "group": "cards",
+                    "move": "board.move",
+                    "placeholder": "No cards",
+                    "children": [
+                      {
+                        "type": "card",
+                        "id": "c1",
+                        "title": "Write the spec",
+                        "role": "accent",
+                        "edit": "board.rename",
+                        "delete": "board.remove",
+                        "menu": [
+                          {
+                            "title": "Open",
+                            "action": "board.open"
+                          }
+                        ],
+                        "children": [
+                          {
+                            "type": "text",
+                            "text": "Draft first",
+                            "id": "board.subtitle.c1",
+                            "style": "caption"
+                          },
+                          {
+                            "type": "badge",
+                            "text": "docs",
+                            "id": "board.tag.c1.0",
+                            "role": "label3"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "card",
+                        "id": "c2",
+                        "title": "Ship it",
+                        "edit": "board.rename",
+                        "delete": "board.remove",
+                        "menu": [
+                          {
+                            "title": "Open",
+                            "action": "board.open"
+                          }
+                        ],
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "panel",
+                "id": "board.col.done",
+                "title": "Done",
+                "role": "label4",
+                "children": [
+                  {
+                    "type": "hstack",
+                    "id": "board.head.done",
+                    "children": [
+                      {
+                        "type": "count",
+                        "count": 0,
+                        "id": "board.count.done"
+                      },
+                      {
+                        "type": "spacer"
+                      },
+                      {
+                        "type": "button",
+                        "id": "board.add.done",
+                        "symbol": "plus",
+                        "style": "icon",
+                        "tooltip": "Add a card",
+                        "action": "board.add"
+                      },
+                      {
+                        "type": "menu",
+                        "menu": [
+                          {
+                            "title": "Rename Column",
+                            "action": "board.column.rename",
+                            "symbol": "pencil"
+                          },
+                          {
+                            "title": "Delete Column",
+                            "action": "board.column.delete",
+                            "symbol": "trash",
+                            "destructive": true
+                          }
+                        ],
+                        "id": "board.colmenu.done",
+                        "label": "Done actions"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "id": "board.list.done",
+                    "group": "cards",
+                    "move": "board.move",
+                    "placeholder": "No cards",
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "board: filtered": {
+    "type": "vstack",
+    "id": "board",
+    "children": [
+      {
+        "type": "hstack",
+        "id": "board.bar",
+        "children": [
+          {
+            "type": "searchField",
+            "id": "board.search",
+            "action": "board.search",
+            "value": "ship",
+            "placeholder": "Search cards"
+          },
+          {
+            "type": "picker",
+            "id": "board.filter",
+            "action": "board.filter",
+            "options": [
+              {
+                "value": "board.all",
+                "title": "All"
+              },
+              {
+                "value": "docs",
+                "title": "docs"
+              }
+            ],
+            "value": "board.all"
+          },
+          {
+            "type": "spacer"
+          },
+          {
+            "type": "button",
+            "id": "sync",
+            "title": "Sync",
+            "symbol": "arrow.triangle.2.circlepath",
+            "action": "sync"
+          }
+        ]
+      },
+      {
+        "type": "scroll",
+        "id": "board.scroll",
+        "axis": "horizontal",
+        "children": [
+          {
+            "type": "hstack",
+            "id": "board.columns",
+            "children": [
+              {
+                "type": "panel",
+                "id": "board.col.todo",
+                "title": "To do",
+                "role": "label6",
+                "children": [
+                  {
+                    "type": "hstack",
+                    "id": "board.head.todo",
+                    "children": [
+                      {
+                        "type": "badge",
+                        "text": "1 of 2",
+                        "id": "board.count.todo"
+                      },
+                      {
+                        "type": "spacer"
+                      },
+                      {
+                        "type": "button",
+                        "id": "board.add.todo",
+                        "symbol": "plus",
+                        "style": "icon",
+                        "tooltip": "Add a card",
+                        "action": "board.add"
+                      },
+                      {
+                        "type": "menu",
+                        "menu": [
+                          {
+                            "title": "Rename Column",
+                            "action": "board.column.rename",
+                            "symbol": "pencil"
+                          },
+                          {
+                            "title": "Delete Column",
+                            "action": "board.column.delete",
+                            "symbol": "trash",
+                            "destructive": true
+                          }
+                        ],
+                        "id": "board.colmenu.todo",
+                        "label": "To do actions"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "id": "board.list.todo",
+                    "group": "cards",
+                    "move": "board.move",
+                    "placeholder": "No cards",
+                    "children": [
+                      {
+                        "type": "card",
+                        "id": "c2",
+                        "title": "Ship it",
+                        "edit": "board.rename",
+                        "delete": "board.remove",
+                        "menu": [
+                          {
+                            "title": "Open",
+                            "action": "board.open"
+                          }
+                        ],
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "panel",
+                "id": "board.col.done",
+                "title": "Done",
+                "role": "label4",
+                "children": [
+                  {
+                    "type": "hstack",
+                    "id": "board.head.done",
+                    "children": [
+                      {
+                        "type": "count",
+                        "count": 0,
+                        "id": "board.count.done"
+                      },
+                      {
+                        "type": "spacer"
+                      },
+                      {
+                        "type": "button",
+                        "id": "board.add.done",
+                        "symbol": "plus",
+                        "style": "icon",
+                        "tooltip": "Add a card",
+                        "action": "board.add"
+                      },
+                      {
+                        "type": "menu",
+                        "menu": [
+                          {
+                            "title": "Rename Column",
+                            "action": "board.column.rename",
+                            "symbol": "pencil"
+                          },
+                          {
+                            "title": "Delete Column",
+                            "action": "board.column.delete",
+                            "symbol": "trash",
+                            "destructive": true
+                          }
+                        ],
+                        "id": "board.colmenu.done",
+                        "label": "Done actions"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "id": "board.list.done",
+                    "group": "cards",
+                    "move": "board.move",
+                    "placeholder": "No cards",
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "board: columns fill the pane": {
+    "type": "vstack",
+    "id": "board",
+    "children": [
+      {
+        "type": "hstack",
+        "id": "board.bar",
+        "children": [
+          {
+            "type": "searchField",
+            "id": "board.search",
+            "action": "board.search",
+            "value": "",
+            "placeholder": "Search cards"
+          },
+          {
+            "type": "picker",
+            "id": "board.filter",
+            "action": "board.filter",
+            "options": [
+              {
+                "value": "board.all",
+                "title": "All"
+              },
+              {
+                "value": "docs",
+                "title": "docs"
+              }
+            ],
+            "value": "board.all"
+          },
+          {
+            "type": "spacer"
+          },
+          {
+            "type": "button",
+            "id": "sync",
+            "title": "Sync",
+            "symbol": "arrow.triangle.2.circlepath",
+            "action": "sync"
+          }
+        ]
+      },
+      {
+        "type": "scroll",
+        "id": "board.scroll",
+        "axis": "horizontal",
+        "children": [
+          {
+            "type": "hstack",
+            "id": "board.columns",
+            "children": [
+              {
+                "type": "panel",
+                "id": "board.col.todo",
+                "title": "To do",
+                "role": "label6",
+                "grow": true,
+                "minWidth": 260,
+                "children": [
+                  {
+                    "type": "hstack",
+                    "id": "board.head.todo",
+                    "children": [
+                      {
+                        "type": "count",
+                        "count": 2,
+                        "id": "board.count.todo"
+                      },
+                      {
+                        "type": "spacer"
+                      },
+                      {
+                        "type": "button",
+                        "id": "board.add.todo",
+                        "symbol": "plus",
+                        "style": "icon",
+                        "tooltip": "Add a card",
+                        "action": "board.add"
+                      },
+                      {
+                        "type": "menu",
+                        "menu": [
+                          {
+                            "title": "Rename Column",
+                            "action": "board.column.rename",
+                            "symbol": "pencil"
+                          },
+                          {
+                            "title": "Delete Column",
+                            "action": "board.column.delete",
+                            "symbol": "trash",
+                            "destructive": true
+                          }
+                        ],
+                        "id": "board.colmenu.todo",
+                        "label": "To do actions"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "id": "board.list.todo",
+                    "group": "cards",
+                    "move": "board.move",
+                    "placeholder": "No cards",
+                    "children": [
+                      {
+                        "type": "card",
+                        "id": "c1",
+                        "title": "Write the spec",
+                        "role": "accent",
+                        "edit": "board.rename",
+                        "delete": "board.remove",
+                        "menu": [
+                          {
+                            "title": "Open",
+                            "action": "board.open"
+                          }
+                        ],
+                        "children": [
+                          {
+                            "type": "text",
+                            "text": "Draft first",
+                            "id": "board.subtitle.c1",
+                            "style": "caption"
+                          },
+                          {
+                            "type": "badge",
+                            "text": "docs",
+                            "id": "board.tag.c1.0",
+                            "role": "label3"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "card",
+                        "id": "c2",
+                        "title": "Ship it",
+                        "edit": "board.rename",
+                        "delete": "board.remove",
+                        "menu": [
+                          {
+                            "title": "Open",
+                            "action": "board.open"
+                          }
+                        ],
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "panel",
+                "id": "board.col.done",
+                "title": "Done",
+                "role": "label4",
+                "grow": true,
+                "minWidth": 260,
+                "children": [
+                  {
+                    "type": "hstack",
+                    "id": "board.head.done",
+                    "children": [
+                      {
+                        "type": "count",
+                        "count": 0,
+                        "id": "board.count.done"
+                      },
+                      {
+                        "type": "spacer"
+                      },
+                      {
+                        "type": "button",
+                        "id": "board.add.done",
+                        "symbol": "plus",
+                        "style": "icon",
+                        "tooltip": "Add a card",
+                        "action": "board.add"
+                      },
+                      {
+                        "type": "menu",
+                        "menu": [
+                          {
+                            "title": "Rename Column",
+                            "action": "board.column.rename",
+                            "symbol": "pencil"
+                          },
+                          {
+                            "title": "Delete Column",
+                            "action": "board.column.delete",
+                            "symbol": "trash",
+                            "destructive": true
+                          }
+                        ],
+                        "id": "board.colmenu.done",
+                        "label": "Done actions"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "id": "board.list.done",
+                    "group": "cards",
+                    "move": "board.move",
+                    "placeholder": "No cards",
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "listDetail": {
+    "type": "split",
+    "id": "listDetail.split",
+    "axis": "horizontal",
+    "fraction": 0.38,
+    "children": [
+      {
+        "type": "vstack",
+        "id": "listDetail.left",
+        "children": [
+          {
+            "type": "hstack",
+            "id": "listDetail.bar",
+            "children": [
+              {
+                "type": "searchField",
+                "id": "listDetail.search",
+                "action": "listDetail.search",
+                "value": "",
+                "placeholder": "Search"
+              }
+            ]
+          },
+          {
+            "type": "list",
+            "id": "listDetail.list",
+            "selection": "single",
+            "select": "listDetail.select",
+            "selected": [
+              "a"
+            ],
+            "placeholder": "Nothing found",
+            "children": [
+              {
+                "type": "row",
+                "id": "a",
+                "title": "Alpha",
+                "subtitle": "first",
+                "symbol": "doc",
+                "badge": {
+                  "text": "new",
+                  "role": "positive"
+                },
+                "action": "listDetail.open"
+              },
+              {
+                "type": "row",
+                "id": "b",
+                "title": "Beta",
+                "action": "listDetail.open"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "vstack",
+        "id": "listDetail.right",
+        "children": [
+          {
+            "type": "hstack",
+            "id": "listDetail.detail.heading",
+            "children": [
+              {
+                "type": "symbol",
+                "symbol": "doc",
+                "id": "listDetail.detail.symbol"
+              },
+              {
+                "type": "vstack",
+                "children": [
+                  {
+                    "type": "text",
+                    "text": "Alpha",
+                    "id": "listDetail.detail.title",
+                    "style": "title",
+                    "selectable": true
+                  },
+                  {
+                    "type": "text",
+                    "text": "first",
+                    "id": "listDetail.detail.subtitle",
+                    "style": "caption"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "hstack",
+            "id": "listDetail.field.0",
+            "children": [
+              {
+                "type": "text",
+                "text": "Size",
+                "id": "listDetail.field.0.label",
+                "style": "caption"
+              },
+              {
+                "type": "spacer"
+              },
+              {
+                "type": "text",
+                "text": "3 KB",
+                "id": "listDetail.field.0.value",
+                "selectable": true
+              }
+            ]
+          },
+          {
+            "type": "markdown",
+            "markdown": "Hello",
+            "id": "listDetail.detail.markdown"
+          },
+          {
+            "type": "hstack",
+            "id": "listDetail.actions",
+            "children": [
+              {
+                "type": "button",
+                "id": "listDetail.action.open",
+                "title": "Open",
+                "style": "primary",
+                "action": "listDetail.action"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "listDetail: nothing chosen": {
+    "type": "split",
+    "id": "listDetail.split",
+    "axis": "horizontal",
+    "fraction": 0.38,
+    "children": [
+      {
+        "type": "vstack",
+        "id": "listDetail.left",
+        "children": [
+          {
+            "type": "hstack",
+            "id": "listDetail.bar",
+            "children": [
+              {
+                "type": "searchField",
+                "id": "listDetail.search",
+                "action": "listDetail.search",
+                "value": "be",
+                "placeholder": "Search"
+              }
+            ]
+          },
+          {
+            "type": "list",
+            "id": "listDetail.list",
+            "selection": "single",
+            "select": "listDetail.select",
+            "placeholder": "Nothing found",
+            "children": [
+              {
+                "type": "row",
+                "id": "b",
+                "title": "Beta",
+                "action": "listDetail.open"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "vstack",
+        "id": "listDetail.right",
+        "children": [
+          {
+            "type": "empty",
+            "text": "Choose an item.",
+            "id": "listDetail.nothing",
+            "symbol": "sidebar.right"
+          }
+        ]
+      }
+    ]
+  },
+  "table": {
+    "type": "vstack",
+    "id": "table",
+    "children": [
+      {
+        "type": "hstack",
+        "id": "table.bar",
+        "children": [
+          {
+            "type": "searchField",
+            "id": "table.search",
+            "action": "table.search",
+            "value": "",
+            "placeholder": "Search"
+          },
+          {
+            "type": "button",
+            "id": "table.tool.delete",
+            "title": "Delete",
+            "symbol": "trash",
+            "style": "destructive",
+            "action": "table.tool"
+          },
+          {
+            "type": "button",
+            "id": "table.tool.add",
+            "title": "Add",
+            "symbol": "plus",
+            "action": "table.tool"
+          },
+          {
+            "type": "spacer"
+          },
+          {
+            "type": "text",
+            "text": "2 selected",
+            "id": "table.count",
+            "style": "caption"
+          }
+        ]
+      },
+      {
+        "type": "table",
+        "id": "table.table",
+        "columns": [
+          {
+            "id": "name",
+            "title": "Name",
+            "sortable": true
+          },
+          {
+            "id": "size",
+            "title": "Size",
+            "width": 80,
+            "sortable": true
+          }
+        ],
+        "selection": "multiple",
+        "select": "table.select",
+        "selected": [
+          "r1",
+          "r2"
+        ],
+        "sorted": {
+          "column": "size",
+          "ascending": false
+        },
+        "sort": "table.sort",
+        "children": [
+          {
+            "type": "row",
+            "id": "r2",
+            "cells": [
+              "b",
+              20
+            ],
+            "action": "table.open",
+            "delete": "table.delete"
+          },
+          {
+            "type": "row",
+            "id": "r1",
+            "cells": [
+              "a",
+              5
+            ],
+            "action": "table.open",
+            "delete": "table.delete"
+          },
+          {
+            "type": "row",
+            "id": "r3",
+            "cells": [
+              "c",
+              1
+            ],
+            "dimmed": true,
+            "action": "table.open",
+            "delete": "table.delete"
+          }
+        ]
+      }
+    ]
+  },
+  "settingsForm": {
+    "type": "scroll",
+    "id": "settings",
+    "axis": "vertical",
+    "children": [
+      {
+        "type": "vstack",
+        "id": "settings.sections",
+        "children": [
+          {
+            "type": "section",
+            "id": "settings.section.general",
+            "title": "General",
+            "children": [
+              {
+                "type": "text",
+                "text": "How it works.",
+                "id": "settings.description.general",
+                "style": "caption"
+              },
+              {
+                "type": "hstack",
+                "id": "settings.row.name",
+                "children": [
+                  {
+                    "type": "vstack",
+                    "id": "settings.text.name",
+                    "children": [
+                      {
+                        "type": "text",
+                        "text": "Name",
+                        "id": "settings.label.name"
+                      },
+                      {
+                        "type": "text",
+                        "text": "Shown in the title",
+                        "id": "settings.help.name",
+                        "style": "caption"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "spacer"
+                  },
+                  {
+                    "type": "textField",
+                    "id": "settings.field.name",
+                    "action": "settings.change",
+                    "value": "Vektor",
+                    "placeholder": "A name"
+                  }
+                ]
+              },
+              {
+                "type": "hstack",
+                "id": "settings.row.sync",
+                "children": [
+                  {
+                    "type": "vstack",
+                    "id": "settings.text.sync",
+                    "children": [
+                      {
+                        "type": "text",
+                        "text": "Sync",
+                        "id": "settings.label.sync"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "spacer"
+                  },
+                  {
+                    "type": "toggle",
+                    "id": "settings.field.sync",
+                    "action": "settings.change",
+                    "value": true
+                  }
+                ]
+              },
+              {
+                "type": "hstack",
+                "id": "settings.row.mode",
+                "children": [
+                  {
+                    "type": "vstack",
+                    "id": "settings.text.mode",
+                    "children": [
+                      {
+                        "type": "text",
+                        "text": "Mode",
+                        "id": "settings.label.mode"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "spacer"
+                  },
+                  {
+                    "type": "picker",
+                    "id": "settings.field.mode",
+                    "action": "settings.change",
+                    "options": [
+                      {
+                        "value": "a",
+                        "title": "A"
+                      },
+                      {
+                        "value": "b",
+                        "title": "B"
+                      }
+                    ],
+                    "value": "a",
+                    "style": "segmented"
+                  }
+                ]
+              },
+              {
+                "type": "vstack",
+                "id": "settings.row.notes",
+                "children": [
+                  {
+                    "type": "vstack",
+                    "id": "settings.text.notes",
+                    "children": [
+                      {
+                        "type": "text",
+                        "text": "Notes",
+                        "id": "settings.label.notes"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "textArea",
+                    "id": "settings.field.notes",
+                    "action": "settings.change",
+                    "value": "x",
+                    "error": "Too short"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "section",
+            "id": "settings.section.more",
+            "title": "More",
+            "collapsible": true,
+            "collapsed": true,
+            "children": [
+              {
+                "type": "hstack",
+                "id": "settings.row.count",
+                "children": [
+                  {
+                    "type": "vstack",
+                    "id": "settings.text.count",
+                    "children": [
+                      {
+                        "type": "text",
+                        "text": "Count",
+                        "id": "settings.label.count"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "spacer"
+                  },
+                  {
+                    "type": "stepper",
+                    "id": "settings.field.count",
+                    "action": "settings.change",
+                    "value": 2,
+                    "min": 0,
+                    "max": 9
+                  }
+                ]
+              },
+              {
+                "type": "hstack",
+                "id": "settings.row.colour",
+                "children": [
+                  {
+                    "type": "vstack",
+                    "id": "settings.text.colour",
+                    "children": [
+                      {
+                        "type": "text",
+                        "text": "Colour",
+                        "id": "settings.label.colour"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "spacer"
+                  },
+                  {
+                    "type": "rolePicker",
+                    "id": "settings.field.colour",
+                    "action": "settings.change",
+                    "value": "label1",
+                    "options": [
+                      {
+                        "value": "label1",
+                        "title": "Red"
+                      },
+                      {
+                        "value": "label4",
+                        "title": "Green"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "hstack",
+                "id": "settings.row.reset",
+                "children": [
+                  {
+                    "type": "vstack",
+                    "id": "settings.text.reset",
+                    "children": [
+                      {
+                        "type": "text",
+                        "text": "Defaults",
+                        "id": "settings.label.reset"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "spacer"
+                  },
+                  {
+                    "type": "button",
+                    "id": "settings.field.reset",
+                    "title": "Reset",
+                    "symbol": "arrow.counterclockwise",
+                    "style": "destructive",
+                    "action": "settings.press"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "cardList": {
+    "type": "list",
+    "id": "cards",
+    "selection": "none",
+    "spacing": 8,
+    "children": [
+      {
+        "type": "card",
+        "id": "k1",
+        "title": "Tunnel",
+        "symbol": "cloud",
+        "badge": {
+          "text": "Running",
+          "role": "positive"
+        },
+        "action": "cards.open",
+        "menu": [
+          {
+            "title": "Rename",
+            "action": "cards.menu.rename"
+          },
+          {
+            "separator": true
+          },
+          {
+            "title": "Delete",
+            "action": "cards.menu.delete",
+            "symbol": "trash",
+            "destructive": true
+          }
+        ],
+        "children": [
+          {
+            "type": "hstack",
+            "id": "cards.body.k1",
+            "children": [
+              {
+                "type": "vstack",
+                "id": "cards.lines.k1",
+                "children": [
+                  {
+                    "type": "text",
+                    "text": "example.com",
+                    "id": "cards.line.k1.0",
+                    "style": "caption",
+                    "lineLimit": 3
+                  },
+                  {
+                    "type": "text",
+                    "text": "Open",
+                    "id": "cards.line.k1.1",
+                    "style": "caption",
+                    "link": "https://example.com",
+                    "lineLimit": 3
+                  }
+                ]
+              },
+              {
+                "type": "spacer"
+              },
+              {
+                "type": "button",
+                "id": "cards.button.stop.k1",
+                "title": "Stop",
+                "symbol": "stop",
+                "style": "plain",
+                "action": "cards.button"
+              },
+              {
+                "type": "button",
+                "id": "cards.button.copy.k1",
+                "symbol": "doc.on.doc",
+                "tooltip": "Copy",
+                "style": "icon",
+                "action": "cards.button"
+              },
+              {
+                "type": "menu",
+                "menu": [
+                  {
+                    "title": "Rename",
+                    "action": "cards.menu.rename"
+                  },
+                  {
+                    "separator": true
+                  },
+                  {
+                    "title": "Delete",
+                    "action": "cards.menu.delete",
+                    "symbol": "trash",
+                    "destructive": true
+                  }
+                ],
+                "id": "cards.more.k1"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "card",
+        "id": "k2",
+        "title": "Plain",
+        "children": [
+          {
+            "type": "hstack",
+            "id": "cards.body.k2",
+            "children": [
+              {
+                "type": "spacer"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "cardList: empty": {
+    "type": "empty",
+    "text": "Create one.",
+    "id": "cards",
+    "title": "No tunnels",
+    "symbol": "cloud"
+  }
+}

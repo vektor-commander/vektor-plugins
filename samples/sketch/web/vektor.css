@@ -1,0 +1,105 @@
+/*
+ * vektor.css — the starter stylesheet for a plugin's web view. Copy it into your plugin's folder and link it:
+ *
+ *     <link rel="stylesheet" href="vektor.css">
+ *
+ * It uses only the properties Vektor sets on :root (every colour of the active theme, the colour roles, fonts, radii and
+ * spacing) and follows them live, so a plain page looks like Vektor in every theme, light or dark. Change what you like:
+ * it is yours once copied. Do not hard-code colours — a page that does will look wrong in some theme.
+ */
+
+:where(:root) {
+  /* Fallbacks for opening the page outside Vektor (a browser preview while you build it). `:where` gives them no weight,
+     so the values Vektor sets on :root always win, wherever this file is linked. */
+  --vektor-color-background-secondary: #1e1f22;
+  --vektor-color-background-elevated: #2b2d31;
+  --vektor-color-foreground-primary: #e8e8ea;
+  --vektor-color-foreground-secondary: #b4b6bb;
+  --vektor-color-accent-primary: #3b82f6;
+  --vektor-color-foreground-on-accent: #ffffff;
+  --vektor-color-border-standard: #3d4046;
+  --vektor-color-border-focus: #3b82f6;
+  --vektor-font-family: -apple-system, system-ui, sans-serif;
+  --vektor-font-size: 13px;
+  --vektor-radius-control: 6px;
+  --vektor-space-sm: 8px;
+  --vektor-space-md: 12px;
+  --vektor-space-lg: 16px;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--vektor-color-background-secondary);
+  color: var(--vektor-color-foreground-primary);
+  font-family: var(--vektor-font-family);
+  font-size: var(--vektor-font-size);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  padding: var(--vektor-space-lg);
+  box-sizing: border-box;
+}
+
+h1, h2, h3 {
+  font-weight: 600;
+  margin: 0 0 var(--vektor-space-md);
+}
+
+h1 { font-size: var(--vektor-font-size-title, 17px); }
+h2 { font-size: var(--vektor-font-size-heading, 15px); }
+
+p, .secondary { color: var(--vektor-color-foreground-secondary); }
+
+a { color: var(--vektor-color-accent-primary); }
+
+input, textarea, select {
+  font: inherit;
+  color: var(--vektor-color-foreground-primary);
+  background: var(--vektor-color-background-elevated);
+  border: var(--vektor-border-width, 1px) solid var(--vektor-color-border-standard);
+  border-radius: var(--vektor-radius-control);
+  padding: 5px var(--vektor-space-sm);
+  outline: none;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--vektor-color-border-focus);
+}
+
+button {
+  font: inherit;
+  font-weight: 600;
+  color: var(--vektor-color-foreground-primary);
+  background: var(--vektor-color-background-elevated);
+  border: var(--vektor-border-width, 1px) solid var(--vektor-color-border-standard);
+  border-radius: var(--vektor-radius-control);
+  padding: 4px var(--vektor-space-md);
+  cursor: default;
+}
+
+button.primary {
+  color: var(--vektor-color-foreground-on-accent);
+  background: var(--vektor-color-accent-primary);
+  border-color: transparent;
+}
+
+button:focus-visible { outline: 2px solid var(--vektor-color-border-focus); outline-offset: 1px; }
+
+.card {
+  background: var(--vektor-color-background-elevated);
+  border: var(--vektor-border-width, 1px) solid var(--vektor-color-border-subtle, var(--vektor-color-border-standard));
+  border-radius: var(--vektor-radius-panel, 8px);
+  padding: var(--vektor-space-md);
+}
+
+/* A tag in one of the colour roles: <span class="tag" style="--role: var(--vektor-role-label3-fill); --role-text: var(--vektor-role-label3-text)">…</span> */
+.tag {
+  display: inline-block;
+  padding: 1px var(--vektor-space-sm);
+  border-radius: 999px;
+  background: var(--role, var(--vektor-role-neutral-fill));
+  color: var(--vektor-color-foreground-primary);
+}

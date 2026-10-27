@@ -43,13 +43,16 @@ it is needed and talks to over stdin and stdout. Start from a template:
 
 | Language | Template | The user must install | Notes |
 |---|---|---|---|
-| zsh | [`templates/zsh`](templates/zsh) | nothing (zsh is on every Mac) | JSON is awkward in a shell; fine for small plugins |
-| Node.js | [`templates/node`](templates/node) | **Node.js** | no npm packages; see the runtime note below |
-| Swift (compiled) | [`templates/swift`](templates/swift) | nothing | you need the Command Line Tools to build; ad-hoc signed by `build.sh` |
+| zsh | [`templates/zsh`](templates/zsh) | nothing (zsh is on every Mac) | JSON is awkward in a shell; fine for small plugins. Uses the helper [`sdk/zsh/vektor.zsh`](sdk/zsh/vektor.zsh) ([guide](docs/sdk-zsh.md)) |
+| Node.js | [`templates/node`](templates/node) | **Node.js** | on the Node SDK ([guide](docs/sdk-node.md)); no npm packages; see the runtime note below |
+| Swift (compiled) | [`templates/swift`](templates/swift) | nothing | on the Swift SDK ([guide](docs/sdk-swift.md)); you need the Command Line Tools to build; ad-hoc signed by `build.sh` |
 
 Copy one to a folder of your own and change `id` (reverse domain, lowercase: `com.yourname.thing`), `name` and `publisher`:
 
     cp -R templates/node ~/my-plugin
+
+The Swift and Node SDKs also ship ready-made **layouts** (a board, a list with detail, a table with toolbar, a settings form, a
+card list): [`docs/sdk-layouts.md`](docs/sdk-layouts.md), which also says when a web view is the better choice than blocks.
 
 There is **no Python template**, on purpose: Python is not part of macOS (on a Mac without the Command Line Tools, `python3`
 opens an installer prompt), so a Python plugin would fail on many users' Macs. If you want Python-like convenience, use Node, or
@@ -57,7 +60,7 @@ ship a compiled program.
 
 **Larger examples** in [`samples/`](samples): `todo` and `todo-node` (a list view, settings, a detail view, state in the data
 folder), `cloudflare-tunnel` (starts programs, dialogs, secrets, a sidebar badge), `folder-drive` (a location that Vektor
-browses like a drive). Each README says what it demonstrates.
+browses like a drive), `sketch` (a web view: a page of the plugin's own, themed by Vektor). Each README says what it demonstrates.
 
 ### Runtimes: Node.js and friends
 
@@ -72,7 +75,7 @@ Vektor gives a plugin a **fixed `PATH`**: `/usr/bin:/bin:/usr/sbin:/sbin:/opt/ho
 
 ### The rules every plugin follows
 
-* `Content-Length` is a **byte** count. In Node use `Buffer`; in zsh set `LC_ALL=C`.
+* `Content-Length` is a **byte** count. The SDKs and `vektor.zsh` do this for you; by hand, in Node use `Buffer` and in zsh set `LC_ALL=C`.
 * stdout is for messages only. Log to stderr or send a `log` message.
 * Answer `shutdown` and exit. Stop everything you started. Write only to `$VEKTOR_PLUGIN_DATA`, never into the plugin's folder.
 * Ask for the permissions you use and no more: the pull-request check requires the entry's permissions to equal the manifest's.

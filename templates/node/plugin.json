@@ -3,10 +3,10 @@
   "name": "Hello Plugin (Node)",
   "version": "0.1.0",
   "publisher": "Your Name",
-  "summary": "A Node template: one command in the file menu that tells you how many items you chose.",
-  "description": "Copy this folder, change the id (reverse domain, lowercase), the name and the publisher, then edit run.js. Needs Node.js, which you install yourself (nodejs.org or Homebrew). Run `vektor-plugin validate .` to check it, `vektor-plugin test . test/checks.json` to test it, and load it in Vektor with Developer mode on (Settings ▸ Plugins ▸ Load Plugin from Folder…).",
-  "api": 1,
-  "minVektor": "0.1.0",
+  "summary": "A Node template on the Vektor SDK: a command in the file menu and a small view in the sidebar.",
+  "description": "Copy this folder, change the id (reverse domain, lowercase), the name and the publisher, then edit run.js. It uses the Vektor SDK for Node (in vektor-sdk/, no npm packages). Needs Node.js, which you install yourself (nodejs.org or Homebrew). Run `vektor-plugin validate .` to check it, `vektor-plugin test . test/checks.json` to test it, and load it in Vektor with Developer mode on (Settings ▸ Plugins ▸ Load Plugin from Folder…).",
+  "api": 2,
+  "minVektor": "1.0.0",
   "executable": "run.js",
   "permissions": ["readSelection"],
   "license": "MIT",
@@ -15,7 +15,7 @@
   "settings": {
     "items": [
       {"key": "greeting", "kind": "text", "label": "Greeting", "default": "Hello",
-       "help": "What the command says before the number of items.",
+       "help": "What the command and the view say.",
        "banner": {"text": "This plugin needs Node.js. Install it from nodejs.org or with Homebrew (brew install node); a copy managed by nvm, fnm or Volta is not found by Vektor.", "linkTitle": "Get Node.js", "link": "https://nodejs.org/"}}
     ]
   },
@@ -25,6 +25,12 @@
     ],
     "menus": [
       {"target": "fileItem", "items": ["hello"]}
+    ],
+    "views": [
+      {"id": "hello", "title": "Hello", "kind": "blocks"}
+    ],
+    "sidebar": [
+      {"id": "hello", "title": "Hello", "symbol": "hand.wave", "view": "hello"}
     ]
   }
 }

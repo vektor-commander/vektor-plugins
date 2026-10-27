@@ -1,0 +1,36 @@
+{
+  "steps": [
+    { "name": "startup: answers",
+      "startup": true,
+      "expect": [ { "kind": "response" } ] },
+
+    { "name": "the page asks for its drawing: an empty one at first",
+      "send": { "method": "web/message", "params": { "view": "sketch", "message": { "type": "load" } } },
+      "expect": [ { "method": "web/post", "match": { "params.view": "sketch", "params.message.type": "strokes", "params.message.strokes": { "count": 0 } } } ] },
+
+    { "name": "a stroke is saved",
+      "send": { "method": "web/message", "params": { "view": "sketch", "message": { "type": "save", "strokes": [ { "role": "label3", "points": [ [10, 20], [30, 40] ] } ] } } },
+      "expect": [ { "method": "web/post", "absent": true } ] },
+
+    { "name": "…and comes back on the next load",
+      "send": { "method": "web/message", "params": { "view": "sketch", "message": { "type": "load" } } },
+      "expect": [ { "method": "web/post", "match": { "params.message.strokes": { "count": 1 }, "params.message.strokes.0.role": "label3", "params.message.strokes.0.points.1.1": 40 } } ] },
+
+    { "name": "something that is not a drawing is not stored",
+      "send": { "method": "web/message", "params": { "view": "sketch", "message": { "type": "save", "strokes": "rm -rf /" } } },
+      "expect": [ { "method": "web/post", "absent": true } ] },
+
+    { "name": "the drawing is unchanged",
+      "send": { "method": "web/message", "params": { "view": "sketch", "message": { "type": "load" } } },
+      "expect": [ { "method": "web/post", "match": { "params.message.strokes": { "count": 1 } } } ] },
+
+    { "name": "ping is answered",
+      "send": { "method": "ping" },
+      "expect": [ { "kind": "response" } ] },
+
+    { "name": "shutdown: answers and exits",
+      "send": { "method": "shutdown", "params": { "reason": "quit" } },
+      "expect": [ { "kind": "response" } ],
+      "expectExit": true }
+  ]
+}

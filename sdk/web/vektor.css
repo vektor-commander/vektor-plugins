@@ -1,0 +1,197 @@
+/*
+ * vektor.css — the SDK's starter stylesheet for a plugin's web view. Copy it into your plugin's folder and link it:
+ *
+ *     <link rel="stylesheet" href="vektor.css">
+ *
+ * It is built only on the CSS properties Vektor sets on :root (docs/reference.md, "Web views": every colour of the active
+ * theme, the colour roles, fonts, radii, spacing) and follows them live, so a plain page looks like Vektor in every theme,
+ * light or dark. It is a superset of the sketch sample's stylesheet: the same base, plus lists, tables, tags in colour roles,
+ * notes, and focus and selection colours. Change what you like: it is yours once copied. Never hard-code a colour — a page
+ * that does looks wrong in some theme.
+ */
+
+:where(:root) {
+  /* Fallbacks for opening the page outside Vektor (a browser preview while you build it). `:where` gives them no weight,
+     so the values Vektor sets on :root always win, wherever this file is linked. */
+  color-scheme: light dark;
+  --vektor-color-background-primary: #18191b;
+  --vektor-color-background-secondary: #1e1f22;
+  --vektor-color-background-elevated: #2b2d31;
+  --vektor-color-surface-row-alternate: #232427;
+  --vektor-color-surface-row-hover: #2e3035;
+  --vektor-color-foreground-primary: #e8e8ea;
+  --vektor-color-foreground-secondary: #b4b6bb;
+  --vektor-color-foreground-muted: #8b8e94;
+  --vektor-color-foreground-on-accent: #ffffff;
+  --vektor-color-accent-primary: #3b82f6;
+  --vektor-color-accent-destructive: #ef4444;
+  --vektor-color-border-standard: #3d4046;
+  --vektor-color-border-subtle: #2f3237;
+  --vektor-color-border-focus: #3b82f6;
+  --vektor-color-selection-background: #2c4f86;
+  --vektor-color-selection-foreground: #ffffff;
+  --vektor-font-family: -apple-system, system-ui, sans-serif;
+  --vektor-font-mono: ui-monospace, Menlo, monospace;
+  --vektor-font-size: 13px;
+  --vektor-font-size-small: 11px;
+  --vektor-font-size-heading: 15px;
+  --vektor-font-size-title: 17px;
+  --vektor-radius-control: 6px;
+  --vektor-radius-panel: 8px;
+  --vektor-border-width: 1px;
+  --vektor-space-xxs: 2px;
+  --vektor-space-xs: 4px;
+  --vektor-space-sm: 8px;
+  --vektor-space-md: 12px;
+  --vektor-space-lg: 16px;
+  --vektor-space-xl: 24px;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--vektor-color-background-secondary);
+  color: var(--vektor-color-foreground-primary);
+  font-family: var(--vektor-font-family);
+  font-size: var(--vektor-font-size);
+  -webkit-font-smoothing: antialiased;
+}
+
+body { padding: var(--vektor-space-lg); box-sizing: border-box; }
+*, *::before, *::after { box-sizing: inherit; }
+
+::selection {
+  background: var(--vektor-color-selection-background);
+  color: var(--vektor-color-selection-foreground);
+}
+
+/* --- Text ------------------------------------------------------------------------------------------------------------ */
+
+h1, h2, h3 { font-weight: 600; margin: 0 0 var(--vektor-space-md); }
+h1 { font-size: var(--vektor-font-size-title); }
+h2 { font-size: var(--vektor-font-size-heading); }
+h3 { font-size: var(--vektor-font-size); }
+p { margin: 0 0 var(--vektor-space-sm); }
+p, .secondary { color: var(--vektor-color-foreground-secondary); }
+.muted { color: var(--vektor-color-foreground-muted); }
+small, .caption { font-size: var(--vektor-font-size-small); color: var(--vektor-color-foreground-secondary); }
+a { color: var(--vektor-color-accent-primary); }
+code, kbd, pre, .mono { font-family: var(--vektor-font-mono); }
+pre {
+  background: var(--vektor-color-background-elevated);
+  border: var(--vektor-border-width) solid var(--vektor-color-border-subtle);
+  border-radius: var(--vektor-radius-control);
+  padding: var(--vektor-space-sm);
+  overflow: auto;
+}
+hr { border: 0; border-top: var(--vektor-border-width) solid var(--vektor-color-border-subtle); margin: var(--vektor-space-md) 0; }
+
+/* --- Controls -------------------------------------------------------------------------------------------------------- */
+
+input, textarea, select {
+  font: inherit;
+  color: var(--vektor-color-foreground-primary);
+  background: var(--vektor-color-background-elevated);
+  border: var(--vektor-border-width) solid var(--vektor-color-border-standard);
+  border-radius: var(--vektor-radius-control);
+  padding: 5px var(--vektor-space-sm);
+  outline: none;
+}
+input:focus, textarea:focus, select:focus { border-color: var(--vektor-color-border-focus); }
+input::placeholder, textarea::placeholder { color: var(--vektor-color-foreground-muted); }
+
+button {
+  font: inherit;
+  font-weight: 600;
+  color: var(--vektor-color-foreground-primary);
+  background: var(--vektor-color-background-elevated);
+  border: var(--vektor-border-width) solid var(--vektor-color-border-standard);
+  border-radius: var(--vektor-radius-control);
+  padding: 4px var(--vektor-space-md);
+  cursor: default;
+}
+button.primary {
+  color: var(--vektor-color-foreground-on-accent);
+  background: var(--vektor-color-accent-primary);
+  border-color: transparent;
+}
+button.destructive { color: var(--vektor-color-accent-destructive); }
+button:disabled { opacity: 0.5; }
+:focus-visible { outline: 2px solid var(--vektor-color-border-focus); outline-offset: 1px; }
+
+/* --- Surfaces -------------------------------------------------------------------------------------------------------- */
+
+.card {
+  background: var(--vektor-color-background-elevated);
+  border: var(--vektor-border-width) solid var(--vektor-color-border-subtle, var(--vektor-color-border-standard));
+  border-radius: var(--vektor-radius-panel);
+  padding: var(--vektor-space-md);
+}
+/* A note: <div class="note" data-role="warning">…</div> */
+.note {
+  border-left: 3px solid var(--role-mark, var(--vektor-role-neutral-mark));
+  background: var(--role-fill, var(--vektor-role-neutral-fill));
+  color: var(--vektor-color-foreground-primary);
+  border-radius: var(--vektor-radius-control);
+  padding: var(--vektor-space-sm) var(--vektor-space-md);
+}
+
+/* --- Lists and tables ------------------------------------------------------------------------------------------------ */
+
+ul.list { list-style: none; margin: 0; padding: 0; }
+ul.list > li { padding: var(--vektor-space-xs) var(--vektor-space-sm); border-radius: var(--vektor-radius-control); }
+ul.list > li:nth-child(even) { background: var(--vektor-color-surface-row-alternate); }
+ul.list > li:hover { background: var(--vektor-color-surface-row-hover); }
+ul.list > li[aria-selected="true"] { background: var(--vektor-color-selection-background); color: var(--vektor-color-selection-foreground); }
+
+table { border-collapse: collapse; width: 100%; }
+th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--vektor-color-foreground-secondary);
+  border-bottom: var(--vektor-border-width) solid var(--vektor-color-border-standard);
+  padding: var(--vektor-space-xs) var(--vektor-space-sm);
+}
+td { padding: var(--vektor-space-xs) var(--vektor-space-sm); }
+tbody tr:nth-child(even) { background: var(--vektor-color-surface-row-alternate); }
+tbody tr:hover { background: var(--vektor-color-surface-row-hover); }
+
+/* --- Colour roles ---------------------------------------------------------------------------------------------------- */
+/* A tag in a role, by name: <span class="tag" data-role="label3">docs</span>. The word says what it means; the colour only
+   helps. Each role's mark, text and fill colours are graded for contrast in every theme. */
+
+.tag {
+  display: inline-block;
+  padding: 1px var(--vektor-space-sm);
+  border-radius: 999px;
+  font-size: var(--vektor-font-size-small);
+  font-weight: 600;
+  background: var(--role-fill, var(--vektor-role-neutral-fill));
+  color: var(--role-text, var(--vektor-color-foreground-primary));
+}
+.swatch { background: var(--role-mark, var(--vektor-role-neutral-mark)); }
+
+[data-role="accent"]   { --role-mark: var(--vektor-role-accent-mark);   --role-text: var(--vektor-role-accent-text);   --role-fill: var(--vektor-role-accent-fill); }
+[data-role="positive"] { --role-mark: var(--vektor-role-positive-mark); --role-text: var(--vektor-role-positive-text); --role-fill: var(--vektor-role-positive-fill); }
+[data-role="warning"]  { --role-mark: var(--vektor-role-warning-mark);  --role-text: var(--vektor-role-warning-text);  --role-fill: var(--vektor-role-warning-fill); }
+[data-role="danger"]   { --role-mark: var(--vektor-role-danger-mark);   --role-text: var(--vektor-role-danger-text);   --role-fill: var(--vektor-role-danger-fill); }
+[data-role="neutral"]  { --role-mark: var(--vektor-role-neutral-mark);  --role-text: var(--vektor-role-neutral-text);  --role-fill: var(--vektor-role-neutral-fill); }
+[data-role="label1"]   { --role-mark: var(--vektor-role-label1-mark);   --role-text: var(--vektor-role-label1-text);   --role-fill: var(--vektor-role-label1-fill); }
+[data-role="label2"]   { --role-mark: var(--vektor-role-label2-mark);   --role-text: var(--vektor-role-label2-text);   --role-fill: var(--vektor-role-label2-fill); }
+[data-role="label3"]   { --role-mark: var(--vektor-role-label3-mark);   --role-text: var(--vektor-role-label3-text);   --role-fill: var(--vektor-role-label3-fill); }
+[data-role="label4"]   { --role-mark: var(--vektor-role-label4-mark);   --role-text: var(--vektor-role-label4-text);   --role-fill: var(--vektor-role-label4-fill); }
+[data-role="label5"]   { --role-mark: var(--vektor-role-label5-mark);   --role-text: var(--vektor-role-label5-text);   --role-fill: var(--vektor-role-label5-fill); }
+[data-role="label6"]   { --role-mark: var(--vektor-role-label6-mark);   --role-text: var(--vektor-role-label6-text);   --role-fill: var(--vektor-role-label6-fill); }
+[data-role="label7"]   { --role-mark: var(--vektor-role-label7-mark);   --role-text: var(--vektor-role-label7-text);   --role-fill: var(--vektor-role-label7-fill); }
+[data-role="label8"]   { --role-mark: var(--vektor-role-label8-mark);   --role-text: var(--vektor-role-label8-text);   --role-fill: var(--vektor-role-label8-fill); }
+
+/* --- Scrollbars ------------------------------------------------------------------------------------------------------ */
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb {
+  background: var(--vektor-color-border-standard);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}

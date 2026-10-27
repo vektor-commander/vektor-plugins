@@ -1,22 +1,24 @@
 #!/bin/bash
-# Build the plugin program into bin/hello and sign it ad hoc. Needs the Command Line Tools (xcode-select --install) on the AUTHOR's
-# Mac only: the user of the plugin needs nothing.
+# Build the plugin program into bin/hello and sign it ad hoc. Needs the Command Line Tools (xcode-select --install) on the
+# AUTHOR's Mac only: the user of the plugin needs nothing.
 #
 #   ./build.sh              one architecture (arm64): what the registry's check expects
 #   ./build.sh universal    arm64 + x86_64 in one file, for Macs of both kinds
 #
-# Run it again after every change to main.swift: a change after signing invalidates the signature and macOS kills the program.
+# Run it again after every change: a change after signing invalidates the signature and macOS kills the program.
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")"
 mkdir -p bin
-target_arm=arm64-apple-macos13
+build() {  # triple -> path of the built program
+    swift build -c release --product hello --triple "$1" >&2
+    echo "$(swift build -c release --triple "$1" --show-bin-path)/hello"   # --show-bin-path with --product prints an error
+}
 if [[ "${1:-}" == "universal" ]]; then
-    swiftc -O -target "$target_arm" Sources/main.swift -o bin/hello-arm64
-    swiftc -O -target x86_64-apple-macos13 Sources/main.swift -o bin/hello-x86_64
-    lipo -create bin/hello-arm64 bin/hello-x86_64 -output bin/hello
-    rm -f bin/hello-arm64 bin/hello-x86_64
+    arm=$(build arm64-apple-macosx13.0)
+    intel=$(build x86_64-apple-macosx13.0)
+    lipo -create "$arm" "$intel" -output bin/hello
 else
-    swiftc -O -target "$target_arm" Sources/main.swift -o bin/hello
+    cp "$(build arm64-apple-macosx13.0)" bin/hello
 fi
 codesign --force -s - bin/hello         # ad hoc: no Developer ID and no notarization are needed
 codesign --verify bin/hello

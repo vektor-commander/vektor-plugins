@@ -3,6 +3,10 @@
 A template for a Vektor plugin written in zsh. **Say Hello** appears in the file context menu and says how many items you
 chose, using the *Greeting* setting.
 
+It uses `vektor.zsh`, the zsh helper (a copy of `sdk/zsh/vektor.zsh` of the plugins repository, because a plugin may only load
+files from its own folder): framing by bytes, JSON escaping, reading fields, the message loop and small block functions. See
+`docs/sdk-zsh.md` for what it offers and for when to move to Swift or Node.
+
 ## Use it
 
 1. Copy this folder and give it a new `id` in `plugin.json` (reverse domain, lowercase: `com.yourname.thing`).

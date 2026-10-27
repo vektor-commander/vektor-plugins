@@ -29,8 +29,9 @@ You can write a plugin, test it and submit it without ever seeing Vektor's sourc
 |---|---|
 | The whole path, step by step | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 | The protocol and manifest reference | [`docs/reference.md`](docs/reference.md) |
+| SDKs: [Swift](docs/sdk-swift.md), [Node.js](docs/sdk-node.md), the [zsh helper](docs/sdk-zsh.md), and the ready-made [layouts](docs/sdk-layouts.md) (board, list with detail, table, form, card list) | [`sdk/`](sdk) |
 | Templates: zsh, Node.js, Swift (compiled) | [`templates/`](templates) |
-| Complete samples (a list view, a tunnel, a location, Todo in Node) | [`samples/`](samples) |
+| Complete samples (a list view, a tunnel, a location, a web view, Todo in Node) | [`samples/`](samples) |
 | An example registry entry | [`examples/plugins/`](examples/plugins) |
 | The entry schema | [`index.schema.json`](index.schema.json) |
 | The tools (`vektor-plugin`, `vektor-registry`) | the newest `tools-*` release of this repository |
@@ -60,6 +61,8 @@ index.json              generated: vektor-registry build        (maintainer, aft
 index.json.sig          generated: vektor-registry sign         (maintainer; the private key stays on their Mac)
 index.schema.json       the JSON Schema of an entry and of the index
 docs/reference.md       the plugin reference
+docs/sdk-*.md           the SDK guides (Swift, Node.js, zsh) and the layouts
+sdk/                    the Swift and Node.js SDKs, the zsh helper, shared test fixtures, web helpers
 templates/              zsh, node, swift
 samples/                larger examples, each with test/checks.json
 examples/               an example registry entry

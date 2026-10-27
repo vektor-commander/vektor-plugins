@@ -1,0 +1,18 @@
+{
+  "name": "@vektor-commander/plugin-sdk",
+  "version": "0.1.0",
+  "description": "The Vektor plugin SDK for Node.js: the plugin protocol, typed block builders, view state with patches, sidebar items, workspaces, storage with conflicts, three-way sync, web view bridge and a test kit.",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist", "README.md"],
+  "engines": { "node": ">=18" },
+  "vektor": { "pluginAPI": 2, "minVektor": "1.0.0" },
+  "scripts": {
+    "build": "./build.sh",
+    "test": "node --test test/*.test.js"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2"
+  }
+}

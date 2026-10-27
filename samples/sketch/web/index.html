@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Sketch</title>
+<link rel="stylesheet" href="vektor.css">
+<style>
+  body { display: flex; flex-direction: column; gap: var(--vektor-space-md); }
+  .bar { display: flex; align-items: center; gap: var(--vektor-space-sm); }
+  .bar .spacer { flex: 1; }
+  .swatch { width: 22px; height: 22px; padding: 0; border-radius: 50%; }
+  .swatch[aria-pressed="true"] { outline: 2px solid var(--vektor-color-border-focus); outline-offset: 2px; }
+  canvas {
+    flex: 1;
+    width: 100%;
+    min-height: 200px;
+    background: var(--vektor-color-background-elevated);
+    border: var(--vektor-border-width, 1px) solid var(--vektor-color-border-standard);
+    border-radius: var(--vektor-radius-panel, 8px);
+    touch-action: none;
+  }
+</style>
+</head>
+<body>
+  <div class="bar" role="toolbar" aria-label="Sketch tools">
+    <!-- Colours are the theme's colour roles, by name: the page never decides a colour of its own. -->
+    <button class="swatch" data-role="accent" aria-label="Accent colour"></button>
+    <button class="swatch" data-role="label1" aria-label="Red"></button>
+    <button class="swatch" data-role="label4" aria-label="Green"></button>
+    <button class="swatch" data-role="label6" aria-label="Blue"></button>
+    <span class="spacer"></span>
+    <span id="status" class="secondary" aria-live="polite"></span>
+    <button id="clear">Clear</button>
+  </div>
+  <canvas id="canvas" aria-label="Drawing area"></canvas>
+  <p class="secondary">Kept in the plugin’s data folder. <a href="https://example.com/">Links open in your browser.</a></p>
+  <script src="app.js"></script>
+</body>
+</html>

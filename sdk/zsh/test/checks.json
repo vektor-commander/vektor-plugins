@@ -1,0 +1,41 @@
+{
+  "settings": {},
+  "autoReply": { "confirm": { "confirmed": true } },
+  "steps": [
+    { "name": "startup is answered",
+      "startup": true,
+      "expect": [ { "kind": "response" } ] },
+
+    { "name": "ping is answered by the loop",
+      "send": { "method": "ping" },
+      "expect": [ { "kind": "response" } ] },
+
+    { "name": "multi-byte text comes back whole, and a nested field is read (framing in both directions)",
+      "send": { "method": "view/event", "params": { "view": "echo", "action": "echo",
+                "value": "žluťoučký kůň — 日本語 😀 \"quoted\" \\ back\ttab",
+                "files": [ { "path": "/Users/me/a b.txt", "name": "ž ů.txt", "isFolder": false } ] } },
+      "expect": [ { "method": "view/update",
+                    "match": { "params.view": "echo",
+                               "params.description.blocks.children.0.text": "žluťoučký kůň — 日本語 😀 \"quoted\" \\ back\ttab",
+                               "params.description.blocks.children.1.text": "ž ů.txt" } } ] },
+
+    { "name": "a request is sent and its answer used",
+      "send": { "method": "view/event", "params": { "view": "echo", "action": "ask" } },
+      "expect": [ { "kind": "request", "method": "confirm", "match": { "params.title": "Sure?" } },
+                  { "kind": "notification", "method": "toast", "match": { "params.message": "answer: yes" } } ] },
+
+    { "name": "an unknown request is refused with a reason",
+      "send": { "method": "decorations/get", "params": { "items": [] } },
+      "expect": [ { "kind": "failure", "match": { "error.message": "unknown method" } } ] },
+
+    { "name": "the unit tests (selftest.zsh) pass",
+      "send": { "method": "invoke", "params": { "command": "selftest", "target": { "menu": "folderBackground" } } },
+      "expect": [ { "kind": "response", "match": { "result.message": { "matches": "^[0-9]+ passed, 0 failed$" } } } ],
+      "timeout": 120 },
+
+    { "name": "shutdown: answers and exits",
+      "send": { "method": "shutdown", "params": { "reason": "quit" } },
+      "expect": [ { "kind": "response" } ],
+      "expectExit": true }
+  ]
+}

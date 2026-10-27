@@ -1,0 +1,19 @@
+{
+  "id": "dev.vektor.sdk.zsh-test",
+  "name": "zsh helper tests",
+  "version": "0.1.0",
+  "publisher": "Vektor",
+  "summary": "Not a real plugin: the tests of sdk/zsh/vektor.zsh, run through vektor-plugin test.",
+  "description": "A plugin whose only job is to exercise sdk/zsh/vektor.zsh over the real wire (vektor-plugin test sdk/zsh/test sdk/zsh/test/checks.json) and to run selftest.zsh, the helper's unit tests. It is never published.",
+  "api": 2,
+  "minVektor": "1.0.0",
+  "executable": "run.zsh",
+  "permissions": [],
+  "license": "MIT",
+  "contributes": {
+    "commands": [ {"id": "selftest", "title": "Run the zsh helper's tests", "symbol": "checkmark.seal"} ],
+    "menus": [ {"target": "folderBackground", "items": ["selftest"]} ],
+    "views": [ {"id": "echo", "title": "Echo", "kind": "blocks"} ],
+    "sidebar": [ {"id": "echo", "title": "Echo", "symbol": "text.bubble", "view": "echo"} ]
+  }
+}

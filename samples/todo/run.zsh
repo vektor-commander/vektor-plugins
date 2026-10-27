@@ -2,7 +2,7 @@
 # Todo — a sample Vektor plugin. Written in zsh, never Python.
 #
 # A todo list in a pane. Nothing in Vektor knows about todos: this script speaks the plugin protocol on stdin/stdout
-# (`Content-Length` framed JSON), describes its list and its summary as data (a `list` view and a `detail` view), and
+# (`Content-Length` framed JSON, through vektor.zsh), describes its list and its summary as data (a `list` view and a `detail` view), and
 # answers what the user does — add, edit, check, reorder, delete — with a new description. Vektor draws it natively.
 #
 #   * The todos are a plain text file in the plugin's data folder (`$VEKTOR_PLUGIN_DATA/todos.list`), or in the folder
@@ -14,11 +14,11 @@
 #     reorder made against a list that has since changed is ignored (and the list is described again), because "move
 #     this before that" no longer means what the user saw.
 #
-# JSON is read with `plutil -extract` (a field per call) and written by hand through `j`, which
-# escapes. Strings are bytes (LC_ALL=C), so `Content-Length` is a byte count.
-export LC_ALL=C
-setopt extended_glob
-zmodload zsh/system zsh/datetime zsh/zselect
+# The wire, JSON escaping and reading fields are vektor.zsh's (a copy of sdk/zsh/vektor.zsh, next to this file): `vk_get` reads a
+# field of the message (plutil), `vk_q` / `vk_str` escape text, `vk_run` is the loop and calls the `on_…` functions below.
+# Strings are bytes (it sets LC_ALL=C), so `Content-Length` is a byte count.
+source ${0:A:h}/vektor.zsh
+zmodload zsh/datetime
 
 data=${VEKTOR_PLUGIN_DATA:-/tmp/vektor-todo}
 mkdir -p "$data"
@@ -28,29 +28,14 @@ readonly US=$'\x1f'     # separates the fields of a line of the list (a tab is I
 typeset -A S                         # settings by key
 typeset -a ORDER OPEN FIN            # todo ids: all of them in the user's order; the open ones and the completed ones, as shown
 typeset -A T_TEXT T_FIN T_AT         # text, 1 when completed, created-at
-typeset body="" method="" msgid="" J=""
 typeset WS_ID="" WS_NAME="" FILE=""
 typeset -i REVISION=0 NEXT_ID=0
 
-# --- Wire ----------------------------------------------------------------------------------------------------------
-j() {  # JSON string literal of $1, in $J
-  local s=$1
-  s=${s//\\/\\\\}; s=${s//\"/\\\"}
-  s=${s//$'\n'/\\n}; s=${s//$'\r'/\\r}; s=${s//$'\t'/\\t}
-  s=${s//[$'\001'-$'\037']/ }
-  J="\"$s\""
-}
-send() { printf 'Content-Length: %d\r\n\r\n%s' ${#1} "$1" }
-notify() { send "{\"api\":1,\"method\":\"$1\",\"params\":$2}" }
-reply() { send "{\"api\":1,\"id\":$1,\"result\":$2}" }
-refuse() { j "$2"; send "{\"api\":1,\"id\":$1,\"error\":{\"message\":$J}}" }
-jx() { print -rn -- "$body" | plutil -extract "$1" raw -o - - 2>/dev/null }
-
 # --- Settings and the file -------------------------------------------------------------------------------------------
 load_settings() {
-  local key folder
-  for key in storage showCompleted sort perWorkspace; do S[$key]=$(jx params.settings.$key); done
-  WS_ID=$(jx params.workspace.id); WS_NAME=$(jx params.workspace.name)
+  local key folder value
+  for key in storage showCompleted sort perWorkspace; do vk_get params.settings.$key value; S[$key]=$value; done
+  vk_get params.workspace.id WS_ID; vk_get params.workspace.name WS_NAME
   folder=${S[storage]:-$data}
   [[ -d $folder ]] || mkdir -p "$folder" 2>/dev/null || folder=$data
   if [[ ${S[perWorkspace]} == true && -n $WS_ID ]]; then
@@ -101,9 +86,13 @@ compute_display() {  # OPEN and FIN, in the order the Sort order setting asks fo
   done
 }
 
+# Displayed text: a control character other than tab, newline and return becomes a space, as this program has always shown
+# it (vk_q alone would escape it, \u0001 ...). The result is in REPLY, ready for vk_q.
+plain() { REPLY=${1//[$'\001'-$'\010'$'\013'$'\014'$'\016'-$'\037']/ } }
+
 row_json() {
   local id=$1 title checked=false dim=false
-  j "${T_TEXT[$id]}"; title=$J
+  plain "${T_TEXT[$id]}"; vk_q "$REPLY"; title=$REPLY
   [[ ${T_FIN[$id]} == 1 ]] && { checked=true; dim=true }
   print -rn -- "{\"id\":\"$id\",\"title\":$title,\"checkbox\":{\"checked\":$checked,\"action\":\"toggle\"},\"edit\":\"edit\",\"delete\":\"delete\",\"dimmed\":$dim,\"menu\":[{\"title\":\"Edit\",\"symbol\":\"pencil\",\"action\":\"edit\"},{\"separator\":true},{\"title\":\"Delete\",\"symbol\":\"trash\",\"action\":\"delete\",\"destructive\":true}]}"
 }
@@ -130,18 +119,18 @@ summary_json() {
   (( fin > 0 )) && clearEnabled=true
   md=$'## Keys\n\n- **Return** adds a todo from the field at the top, or edits the selected one\n- **Space** checks it off\n- **⌥↑** and **⌥↓** move it; so does dragging\n- **Delete** removes it\n- **Esc** closes the list'
   local j_subtitle j_list j_stored j_md
-  j "$subtitle"; j_subtitle=$J
-  j "$list"; j_list=$J
-  j "$stored"; j_stored=$J
-  j "$md"; j_md=$J
+  vk_q "$subtitle"; j_subtitle=$REPLY
+  plain "$list"; vk_q "$REPLY"; j_list=$REPLY
+  plain "$stored"; vk_q "$REPLY"; j_stored=$REPLY
+  vk_q "$md"; j_md=$REPLY
   print -rn -- "{\"revision\":$REVISION,\"detail\":{\"heading\":{\"title\":\"Todo\",\"subtitle\":$j_subtitle,\"symbol\":\"checklist\"},\"rows\":[{\"label\":\"Open\",\"value\":\"$open\"},{\"label\":\"Completed\",\"value\":\"$fin\"},{\"label\":\"Total\",\"value\":\"$total\"},{\"label\":\"List\",\"value\":$j_list},{\"label\":\"Stored in\",\"value\":$j_stored}],\"markdown\":$j_md,\"actions\":[{\"title\":\"Clear Completed\",\"symbol\":\"trash\",\"action\":\"clear\",\"enabled\":$clearEnabled}]}}"
 }
 
 refresh() {  # every view is described again, with the next revision
   REVISION+=1
   compute_display
-  notify view/update "{\"view\":\"todos\",\"description\":$(todos_json)}"
-  notify view/update "{\"view\":\"summary\",\"description\":$(summary_json)}"
+  vk_view_update todos "$(todos_json)"
+  vk_view_update summary "$(summary_json)"
 }
 
 # --- Changing the list -----------------------------------------------------------------------------------------------
@@ -173,10 +162,10 @@ move_todo() {  # id before-id (empty: the end of its group): "this one goes befo
   fi
 }
 
-on_event() {
+on_view_event() {
   local action card value before rev id
-  action=$(jx params.action); card=$(jx params.card); value=$(jx params.value)
-  before=$(jx params.before); rev=$(jx params.revision)
+  vk_get params.action action; vk_get params.card card; vk_get params.value value
+  vk_get params.before before; vk_get params.revision rev
   case $action in
     add)
       add_todo "$value" && { save_todos; refresh } ;;
@@ -202,50 +191,24 @@ on_event() {
   esac
 }
 
-# --- Main loop -------------------------------------------------------------------------------------------------------
-while true; do
-  zselect 0 2>/dev/null
-  length=""
-  while IFS= read -r line; do
-    line=${line%$'\r'}
-    [[ -z $line ]] && break
-    [[ $line == (#i)content-length:* ]] && length=${${line#*:}// /}
-  done
-  if [[ -z $length ]]; then
-    # End of file: Vektor is gone. Nothing to stop; remove a half-written temporary file.
-    rm -f "$FILE.new" 2>/dev/null
-    exit 0
-  fi
-  body=""
-  while (( ${#body} < length )); do
-    chunk=""
-    sysread -i 0 -s $(( length - ${#body} )) chunk || break
-    body+=$chunk
-  done
+# --- Lifecycle: vk_run answers startup, shutdown and ping, and calls these -------------------------------------------------
+on_startup() {    # before startup is answered
+  load_settings
+  load_todos
+}
 
-  method=$(jx method)
-  msgid=$(jx id)
-  case $method in
-    startup)
-      load_settings
-      load_todos
-      reply $msgid '{}'
-      refresh ;;
-    shutdown)
-      rm -f "$FILE.new" 2>/dev/null
-      reply $msgid '{}'
-      exit 0 ;;
-    settingsChanged)
-      previous=$FILE
-      load_settings
-      [[ $FILE != $previous ]] && load_todos
-      refresh ;;
-    view/opened) refresh ;;
-    view/closed) ;;
-    view/event) on_event ;;
-    ping) reply $msgid '{}' ;;
-    '$/cancel') ;;
-    '') ;;
-    *) [[ -n $msgid ]] && refuse $msgid "unknown method" ;;
-  esac
-done
+on_ready() { refresh }     # right after: the Settings tab and the sidebar are ready before anyone opens a pane
+
+on_settingsChanged() {
+  local previous=$FILE
+  load_settings
+  [[ $FILE != $previous ]] && load_todos
+  refresh
+}
+
+on_view_opened() { refresh }
+
+# Before shutdown is answered, and at end of input (Vektor is gone). Nothing to stop; remove a half-written temporary file.
+on_shutdown() { rm -f "$FILE.new" 2>/dev/null }
+
+vk_run

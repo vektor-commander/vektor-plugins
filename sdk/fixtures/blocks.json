@@ -1,0 +1,472 @@
+{
+ "vstack": {
+  "type": "vstack",
+  "spacing": 4,
+  "children": []
+ },
+ "hstack": {
+  "type": "hstack",
+  "spacing": 8,
+  "children": [
+   {
+    "type": "spacer"
+   }
+  ]
+ },
+ "spacer": {
+  "type": "spacer"
+ },
+ "divider": {
+  "type": "divider"
+ },
+ "grid": {
+  "type": "grid",
+  "columns": 3,
+  "minWidth": 120,
+  "spacing": 6,
+  "children": []
+ },
+ "scroll": {
+  "type": "scroll",
+  "axis": "both",
+  "children": []
+ },
+ "split": {
+  "type": "split",
+  "id": "s",
+  "axis": "horizontal",
+  "fraction": 0.3,
+  "height": 300,
+  "children": [
+   {
+    "type": "text",
+    "text": "a"
+   },
+   {
+    "type": "text",
+    "text": "b"
+   }
+  ]
+ },
+ "section": {
+  "type": "section",
+  "id": "sec",
+  "title": "Open",
+  "collapsible": true,
+  "collapsed": false,
+  "count": 3,
+  "children": []
+ },
+ "tabs/tab": {
+  "type": "tabs",
+  "id": "t",
+  "style": "segmented",
+  "action": "tab",
+  "children": [
+   {
+    "type": "tab",
+    "id": "one",
+    "title": "One",
+    "symbol": "star",
+    "children": []
+   }
+  ]
+ },
+ "card": {
+  "type": "card",
+  "title": "T",
+  "symbol": "doc",
+  "role": "accent",
+  "badge": {
+   "text": "new",
+   "role": "positive"
+  },
+  "children": []
+ },
+ "panel": {
+  "type": "panel",
+  "title": "P",
+  "role": "label2",
+  "children": []
+ },
+ "list": {
+  "type": "list",
+  "id": "l",
+  "selection": "multiple",
+  "select": "sel",
+  "group": "g",
+  "move": "mv",
+  "placeholder": "None",
+  "spacing": 6,
+  "children": []
+ },
+ "row": {
+  "type": "row",
+  "id": "r",
+  "title": "T",
+  "subtitle": "S",
+  "symbol": "doc",
+  "check": "chk",
+  "checked": true,
+  "badge": {
+   "text": "b"
+  },
+  "buttons": [
+   {
+    "title": "Go",
+    "symbol": "play",
+    "action": "go",
+    "enabled": true
+   }
+  ],
+  "menu": [
+   {
+    "title": "Del",
+    "action": "del",
+    "destructive": true
+   },
+   {
+    "separator": true
+   }
+  ],
+  "dimmed": true
+ },
+ "table": {
+  "type": "table",
+  "id": "tb",
+  "columns": [
+   {
+    "id": "name",
+    "title": "Name",
+    "width": 200,
+    "sortable": true
+   }
+  ],
+  "sorted": {
+   "column": "name",
+   "ascending": false
+  },
+  "sort": "sort",
+  "children": [
+   {
+    "type": "row",
+    "id": "r1",
+    "cells": [
+     "a",
+     1
+    ]
+   }
+  ]
+ },
+ "tree/node": {
+  "type": "tree",
+  "id": "tr",
+  "children": [
+   {
+    "type": "node",
+    "id": "n1",
+    "title": "Root",
+    "symbol": "folder",
+    "expanded": true,
+    "children": [
+     {
+      "type": "node",
+      "id": "n2",
+      "title": "Leaf",
+      "children": []
+     }
+    ]
+   }
+  ]
+ },
+ "text": {
+  "type": "text",
+  "text": "Hi",
+  "style": "mono",
+  "selectable": true,
+  "link": "https://example.com",
+  "role": "neutral",
+  "lineLimit": 2
+ },
+ "symbol": {
+  "type": "symbol",
+  "symbol": "star",
+  "role": "warning",
+  "label": "Starred"
+ },
+ "badge": {
+  "type": "badge",
+  "text": "docs",
+  "role": "label3",
+  "label": "Tag docs"
+ },
+ "count": {
+  "type": "count",
+  "count": 12,
+  "role": "accent"
+ },
+ "markdown": {
+  "type": "markdown",
+  "markdown": "# Hi"
+ },
+ "empty": {
+  "type": "empty",
+  "text": "Nothing",
+  "title": "Empty",
+  "symbol": "tray",
+  "role": "neutral",
+  "link": "https://example.com"
+ },
+ "banner": {
+  "type": "banner",
+  "text": "Note",
+  "role": "warning"
+ },
+ "status": {
+  "type": "status",
+  "text": "Synced",
+  "symbol": "checkmark",
+  "role": "positive"
+ },
+ "diff": {
+  "type": "diff",
+  "left": "a",
+  "right": "b",
+  "leftTitle": "Mine",
+  "rightTitle": "Theirs",
+  "keepLeft": "keepMine",
+  "keepRight": "keepTheirs"
+ },
+ "button": {
+  "type": "button",
+  "id": "sync",
+  "title": "Sync",
+  "symbol": "arrow.triangle.2.circlepath",
+  "action": "sync",
+  "style": "icon",
+  "tooltip": "Sync now",
+  "busy": true,
+  "enabled": false
+ },
+ "textField": {
+  "type": "textField",
+  "id": "f",
+  "action": "set",
+  "value": "x",
+  "placeholder": "Type",
+  "title": "Name",
+  "error": "Too short"
+ },
+ "searchField": {
+  "type": "searchField",
+  "id": "q",
+  "action": "search",
+  "placeholder": "Filter"
+ },
+ "textArea": {
+  "type": "textArea",
+  "id": "notes",
+  "action": "save",
+  "value": "a\nb"
+ },
+ "toggle": {
+  "type": "toggle",
+  "id": "on",
+  "action": "flip",
+  "value": true,
+  "title": "On"
+ },
+ "checkbox": {
+  "type": "checkbox",
+  "id": "cb",
+  "action": "tick",
+  "value": false
+ },
+ "picker": {
+  "type": "picker",
+  "id": "p",
+  "action": "pick",
+  "options": [
+   {
+    "value": "a",
+    "title": "A",
+    "symbol": "a.circle"
+   }
+  ],
+  "value": "a",
+  "style": "segmented"
+ },
+ "stepper": {
+  "type": "stepper",
+  "id": "st",
+  "action": "step",
+  "value": 2,
+  "min": 0,
+  "max": 10,
+  "step": 2
+ },
+ "menu": {
+  "type": "menu",
+  "menu": [
+   {
+    "title": "Rename",
+    "action": "rename",
+    "symbol": "pencil"
+   }
+  ],
+  "title": "More"
+ },
+ "datePicker": {
+  "type": "datePicker",
+  "id": "due",
+  "action": "due",
+  "value": "2026-10-23"
+ },
+ "tagPicker": {
+  "type": "tagPicker",
+  "id": "tags",
+  "action": "tags",
+  "tags": [
+   "a"
+  ],
+  "suggestions": [
+   "b"
+  ]
+ },
+ "rolePicker": {
+  "type": "rolePicker",
+  "id": "colour",
+  "action": "colour",
+  "value": "label1",
+  "options": [
+   {
+    "value": "label1",
+    "title": "Red"
+   },
+   {
+    "value": "label4",
+    "title": "Green"
+   }
+  ]
+ },
+ "spinner": {
+  "type": "spinner",
+  "text": "Loading"
+ },
+ "progress": {
+  "type": "progress",
+  "progress": 0.5,
+  "title": "Uploading"
+ },
+ "fileList": {
+  "type": "fileList",
+  "files": [
+   "/tmp/a.txt",
+   "/tmp/folder/"
+  ]
+ },
+ "web": {
+  "type": "web",
+  "id": "page",
+  "entry": "web/index.html",
+  "height": 300
+ },
+ "reference: board": {
+  "type": "hstack",
+  "id": "board",
+  "children": [
+   {
+    "type": "panel",
+    "id": "col-todo",
+    "title": "To do",
+    "role": "label6",
+    "children": [
+     {
+      "type": "list",
+      "id": "todo",
+      "group": "cards",
+      "move": "move",
+      "children": [
+       {
+        "type": "card",
+        "id": "c1",
+        "title": "Write the spec",
+        "edit": "rename",
+        "delete": "remove",
+        "children": [
+         {
+          "type": "badge",
+          "id": "c1-tag",
+          "text": "docs",
+          "role": "label3"
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "panel",
+    "id": "col-done",
+    "title": "Done",
+    "role": "label4",
+    "children": [
+     {
+      "type": "list",
+      "id": "done",
+      "group": "cards",
+      "move": "move",
+      "children": []
+     }
+    ]
+   }
+  ]
+ },
+ "reference: web block": {
+  "type": "vstack",
+  "id": "root",
+  "children": [
+   {
+    "type": "hstack",
+    "id": "bar",
+    "children": [
+     {
+      "type": "button",
+      "id": "clear",
+      "title": "Clear",
+      "action": "clear"
+     }
+    ]
+   },
+   {
+    "type": "web",
+    "id": "canvas",
+    "entry": "web/canvas.html"
+   }
+  ]
+ },
+ "reference: widths": {
+  "type": "scroll",
+  "axis": "horizontal",
+  "spacing": 12,
+  "children": [
+   {
+    "type": "panel",
+    "id": "col-todo",
+    "title": "To do",
+    "grow": true,
+    "minWidth": 240,
+    "children": []
+   },
+   {
+    "type": "panel",
+    "id": "col-done",
+    "title": "Done",
+    "grow": true,
+    "minWidth": 240,
+    "children": []
+   }
+  ]
+ }
+}

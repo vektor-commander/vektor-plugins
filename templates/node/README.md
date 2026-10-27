@@ -1,7 +1,11 @@
 # Hello Plugin (Node)
 
-A template for a Vektor plugin written in Node.js, with no npm packages. **Say Hello** appears in the file context menu and says
-how many items you chose, using the *Greeting* setting.
+A template for a Vektor plugin written in Node.js on the **Vektor SDK for Node** (in `vektor-sdk/`: plain JavaScript, no
+npm packages, nothing to install but Node itself). It shows the two things most plugins do:
+
+* **Say Hello** in the file context menu says how many items you chose, using the *Greeting* setting;
+* **Hello** in the sidebar's Plugins section opens a small block view: type a name and press Return to add it, ⌫ removes it.
+  The SDK sends the view as a whole the first time and as small patches after that.
 
 ## Before you start
 
@@ -14,12 +18,18 @@ how many items you chose, using the *Greeting* setting.
 ## Use it
 
 1. Copy this folder and give it a new `id` in `plugin.json` (reverse domain, lowercase: `com.yourname.thing`).
-2. Edit `run.js`. `docs/reference.md` in the plugins repository lists every message, setting kind and contribution point.
+2. Edit `run.js`. Everything the plugin does is registered in `setup(plugin)`; `docs/reference.md` in the plugins repository is
+   the protocol, and `vektor-sdk/*.d.ts` lists what the SDK offers (block builders, views, storage, sync, web bridge).
 3. Check it: `vektor-plugin validate .`
-4. Test it without Vektor: `vektor-plugin test . test/checks.json`
+4. Test it without Vektor: `vektor-plugin test . test/checks.json`, or `node --test` here — the SDK's test kit plays the same
+   `checks.json` with the plugin in memory (that also works where Node comes from nvm), and `test/run.test.js` shows a test of
+   your own.
 5. Try it in Vektor: Settings ▸ Plugins ▸ turn on **Developer mode**, **Load Plugin from Folder…**. Edits to `plugin.json` or
    `run.js` reload the plugin at once.
-6. Publish it: see `CONTRIBUTING.md` in the plugins repository.
+6. Publish it: see `CONTRIBUTING.md` in the plugins repository. Ship the `vektor-sdk` folder with the plugin (a plugin can load
+   files only from its own folder); `test/` is optional.
 
-`run.js` has the three Node traps in its header: byte counts for `Content-Length` (`Buffer`), nothing but messages on stdout, and
-exit after answering `shutdown`.
+## The SDK copy
+
+`vektor-sdk/` is the compiled SDK from `sdk/node` of the plugins repository (`sdk/node/build.sh` refreshes it there). To update
+a plugin to a newer SDK, replace the folder with the newer one. Its version is in `vektor-sdk/version.js`.

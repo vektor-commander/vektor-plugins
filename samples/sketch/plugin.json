@@ -1,0 +1,23 @@
+{
+  "id": "dev.vektor.sample.sketch",
+  "name": "Sketch",
+  "version": "1.0.0",
+  "publisher": "Vektor",
+  "summary": "A drawing canvas in a pane: a web view made of the plugin's own files.",
+  "description": "Draw with the mouse or a trackpad; the drawing is kept in the plugin's data folder and comes back the next time. It is the example of a web view: a page from the plugin's folder, no network, themed like Vektor through its CSS properties, talking only to its own plugin.",
+  "api": 2,
+  "minVektor": "0.1.0",
+  "executable": "run.zsh",
+  "permissions": ["openURLs"],
+  "license": "MIT",
+  "readme": "README.md",
+  "icon": "icon.svg",
+  "contributes": {
+    "views": [
+      {"id": "sketch", "title": "Sketch", "kind": "web", "entry": "web/index.html"}
+    ],
+    "sidebar": [
+      {"id": "sketch", "title": "Sketch", "symbol": "scribble.variable", "view": "sketch"}
+    ]
+  }
+}

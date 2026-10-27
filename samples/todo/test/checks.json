@@ -51,6 +51,10 @@
       "send": { "method": "settingsChanged", "params": { "settings": { "sort": "alphabetical", "showCompleted": true, "perWorkspace": false }, "workspace": null } },
       "expect": [ { "method": "view/update", "match": { "params.view": "todos", "params.description.list.reorder": { "exists": false } } } ] },
 
+    { "name": "a control character in a todo is shown as a space, as the program always did",
+      "send": { "method": "view/event", "params": { "view": "todos", "action": "add", "value": "Zz\u0001y\u000cz\tw" } },
+      "expect": [ { "method": "view/update", "match": { "params.view": "todos", "params.description.list.groups.0.rows.1.title": "Zz y z w" } } ] },
+
     { "name": "ping is answered",
       "send": { "method": "ping" },
       "expect": [ { "kind": "response" } ] },
