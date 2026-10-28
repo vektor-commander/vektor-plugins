@@ -1,5 +1,5 @@
 {
-  "generated" : "2026-10-27T12:55:09Z",
+  "generated" : "2026-10-28T07:38:13Z",
   "plugins" : [
     {
       "categories" : [
@@ -27,12 +27,12 @@
       "versions" : [
         {
           "api" : 2,
-          "changelog" : "First version.",
+          "changelog" : "A board on one of your connections syncs by itself: a few seconds after your changes, and every two minutes for everyone else's.",
           "minVektor" : "1.0.0",
-          "published" : "2026-10-27T12:51:57Z",
-          "sha256" : "5b33e06d33d4d340de6b902e1f03bdfdb4e6533802f344e4be9d21fdb7784cfb",
-          "url" : "https://raw.githubusercontent.com/vektor-commander/vektor-plugins/main/packages/com.vektor-commander.board/0.1.1.zip",
-          "version" : "0.1.1"
+          "published" : "2026-10-28T07:36:06Z",
+          "sha256" : "8ff1e456636d3b9e915769842a2f966cebcddf8bbcbd43e658c19a1a60566375",
+          "url" : "https://raw.githubusercontent.com/vektor-commander/vektor-plugins/main/packages/com.vektor-commander.board/0.1.2.zip",
+          "version" : "0.1.2"
         }
       ]
     },
