@@ -64,13 +64,29 @@ public final class BoardController {
         public var policy: MergePolicy
         /// The plugin's Log. Never given a record's contents or anything secret: counts and plain words only.
         public var log: @MainActor (String) -> Void
+        /// Whether a place on a connection syncs by itself (nil: only with the Sync button, as the tests have it).
+        public var remoteAutoSync: RemoteAutoSync?
         public init(author: String = BoardController.userName(), now: @escaping @MainActor () -> Date = { Date() }, policy: MergePolicy = .record,
-                    log: @escaping @MainActor (String) -> Void = { _ in }) {
+                    log: @escaping @MainActor (String) -> Void = { _ in }, remoteAutoSync: RemoteAutoSync? = nil) {
             self.author = author
             self.now = now
             self.policy = policy
             self.log = log
+            self.remoteAutoSync = remoteAutoSync
         }
+    }
+
+    /// Syncing a place on a connection by itself: a while after the last change (a burst of edits is sent once), and every so
+    /// often to bring in the other copies' changes. In seconds.
+    public struct RemoteAutoSync: Sendable {
+        public var afterChange: Double
+        public var every: Double
+        public init(afterChange: Double, every: Double) {
+            self.afterChange = afterChange
+            self.every = every
+        }
+        /// What the plugin uses.
+        public static let standard = RemoteAutoSync(afterChange: 3, every: 120)
     }
 
     /// The macOS user's full name, else the account name.
@@ -102,6 +118,8 @@ public final class BoardController {
     private let lock = AsyncLock()
     private var autoSyncWanted = false
     private var autoSyncRunning = false
+    private var remoteSyncTimer: Task<Void, Never>?
+    private var pollTimer: Task<Void, Never>?
     private var activated = false
 
     /// `makePlace` turns a `place` setting's handle into a place (the tests wrap Vektor's).
@@ -163,6 +181,7 @@ public final class BoardController {
             onChange?(.workspace)
         }
         if case .folder = status.mode { requestAutoSync() }
+        startPolling()
     }
 
     // MARK: - Boards
@@ -646,7 +665,48 @@ public final class BoardController {
     }
 
     private func afterChange() {
-        if case .folder = status.mode { requestAutoSync() }
+        switch status.mode {
+        case .folder: requestAutoSync()
+        case .remote: scheduleRemoteSync()
+        case .pluginFolder: break
+        }
+    }
+
+    /// One sync a moment after the last change, replacing one not started yet: a burst of edits is sent once.
+    private func scheduleRemoteSync() {
+        guard let auto = options.remoteAutoSync else { return }
+        remoteSyncTimer?.cancel()
+        remoteSyncTimer = Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: UInt64(auto.afterChange * 1_000_000_000))
+            guard !Task.isCancelled, let self else { return }
+            await self.remoteAutoSync()
+        }
+    }
+
+    /// A place on a connection: a sync now (what others changed while Vektor was closed), then every `every` seconds. After a
+    /// failure (offline, signed out) the wait doubles up to 30 minutes, so an unreachable place does not fill the Log.
+    private func startPolling() {
+        pollTimer?.cancel()
+        pollTimer = nil
+        guard case .remote = status.mode, let auto = options.remoteAutoSync else {
+            remoteSyncTimer?.cancel()
+            return
+        }
+        pollTimer = Task { @MainActor [weak self] in
+            var wait = 0.0
+            while !Task.isCancelled {
+                if wait > 0 { try? await Task.sleep(nanoseconds: UInt64(wait * 1_000_000_000)) }
+                guard !Task.isCancelled, let self else { return }
+                await self.remoteAutoSync()
+                wait = self.status.error == nil ? auto.every : min(max(wait, auto.every) * 2, 1_800)
+            }
+        }
+    }
+
+    private func remoteAutoSync() async {
+        // Open questions wait for the user's answers: a sync now would only ask them again.
+        guard case .remote = status.mode, status.conflicts.isEmpty else { return }
+        _ = await sync()
     }
 
     private func edit<R: BoardRecordType>(_ records: inout [R], _ id: String, missing: String, _ body: (inout R) throws -> Void) throws {

@@ -433,6 +433,45 @@ func syncTests() async {
         try checkEqual(try world.placeJSON("index.json").value(at: "boards.0.name"), "Local")
     }
 
+    await test("a place on a connection syncs by itself: once shortly after a burst of changes, and again for the other copy's") {
+        let world = try await World()
+        // A's periodic sync is too slow to matter here, so A shows the sync after a change; B shows the periodic one.
+        let a = try world.copy("A", autoSync: BoardController.RemoteAutoSync(afterChange: 0.15, every: 30))
+        let b = try world.copy("B", autoSync: BoardController.RemoteAutoSync(afterChange: 30, every: 0.3))
+        await a.activate(workspace: work, place: world.handle)
+        try check(a.status.showsSyncButton, "the Sync button stays")
+        let board = try await a.createBoard(name: "Roadmap")
+        let backlog = a.columnID("Backlog", in: board)!
+        try await until("A sent the new board without Sync") { !a.status.unsynced && world.placeHas("boards/\(board).json") }
+        let writesBefore = world.calls("storage/write")
+        for title in ["One", "Two", "Three"] { _ = try await a.addTask(to: board, column: backlog, title: title) }
+        try await until("A sent its changes without Sync") { !a.status.unsynced && (try? placeBoard(world, board).tasks.count) == 3 }
+        try checkEqual(try placeBoard(world, board).tasks.map(\.title), ["One", "Two", "Three"])
+        try checkEqual(world.calls("storage/write") - writesBefore, 1, "one sync for the burst, one write of the board's file")
+        await b.activate(workspace: work, place: world.handle)
+        try await until("B brought them in without Sync") { b.layout(board) == a.layout(board) }
+        // A later change of A's reaches B by B's periodic sync.
+        _ = try await a.addTask(to: board, column: backlog, title: "Four")
+        try await until("B has A's later change") { b.layout(board).contains("Four") && b.layout(board) == a.layout(board) }
+        // No place on a connection: the timers stop.
+        await a.activate(workspace: work, place: nil)
+        await b.activate(workspace: work, place: nil)
+        let writesAfter = world.calls("storage/list")
+        try await Task.sleep(nanoseconds: 700_000_000)
+        try checkEqual(world.calls("storage/list"), writesAfter, "nothing more is asked of the place")
+    }
+
+    await test("without automatic sync (the option off) a place on a connection waits for Sync") {
+        let world = try await World()
+        let a = try world.copy("A")
+        await a.activate(workspace: work, place: world.handle)
+        let board = try await a.createBoard(name: "Manual")
+        _ = try await a.addTask(to: board, column: a.columnID("Backlog", in: board)!, title: "waits")
+        try await Task.sleep(nanoseconds: 300_000_000)
+        try check(a.status.unsynced)
+        try check(!world.placeHas("boards/\(board).json"))
+    }
+
     await test("the Log: counts and plain words only — never a name, a title, a description, a comment or the place's handle") {
         let (world, a, b, board) = try await pair()
         let secrets = ["Secret board name 7731", "Secret task title 4410", "Secret description 9921", "Secret comment 5512", "Secret tag 1093"]

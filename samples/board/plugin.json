@@ -1,7 +1,7 @@
 {
   "id": "com.vektor-commander.board",
   "name": "Board",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "Vektor",
   "summary": "Kanban boards for each workspace, kept locally or in a folder on one of your connections.",
   "description": "Kanban boards for each workspace, in the sidebar: columns, tasks with tags, notes and comments. Keep them locally, or share them through a folder on one of your connections and sync.",

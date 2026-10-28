@@ -150,10 +150,14 @@ final class World {
     }
 
     /// A copy: its own data folder (unless given, for a restart), reaching the place through `wrap`.
-    func copy(_ name: String, data: URL? = nil, author: String? = nil, policy: MergePolicy = .record, wrap: ((PlaceStore) -> PlaceStore)? = nil) throws -> BoardController {
+    func copy(
+        _ name: String, data: URL? = nil, author: String? = nil, policy: MergePolicy = .record, autoSync: BoardController.RemoteAutoSync? = nil,
+        wrap: ((PlaceStore) -> PlaceStore)? = nil
+    ) throws -> BoardController {
         let folder = try data ?? temporaryFolder(name)
         let plugin = self.plugin
-        var options = BoardController.Options(author: author ?? "Author \(name)", now: { [clock] in clock.tick() }, policy: policy)
+        var options = BoardController.Options(
+            author: author ?? "Author \(name)", now: { [clock] in clock.tick() }, policy: policy, remoteAutoSync: autoSync)
         options.log = { [weak self] message in self?.logs.append(message) }
         return BoardController(dataFolder: folder, options: options) { handle in
             let place = VektorPlace(plugin: plugin, handle: handle)

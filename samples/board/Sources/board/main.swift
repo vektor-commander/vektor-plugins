@@ -2,4 +2,4 @@
 import BoardPlugin
 import VektorPlugin
 
-setup(Plugin()).run()
+setup(Plugin(), options: BoardController.Options(remoteAutoSync: .standard)).run()
